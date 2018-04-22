@@ -43,3 +43,25 @@ r=requests.get("https://i3/api/rest/system/information",verify=False,headers={'A
     "systemType" : "COMMANDER"
   } ]
 }
+
+17:20 Sun 22-Apr-18 EDT
+>>> r=requests.get("https://i3/api/rest/zonedata/devices?filter.zone.id=4",verify=False,headers={'Authorization':"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMnsdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", 'Accept':'json;pretty'})
+/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/urllib3/connectionpool.py:858: InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
+  InsecureRequestWarning)
+>>> print(r.text)                                                                                                       {
+  "@class" : "apiresponse",
+  "status" : "SUCCESS",
+  "method" : "ZoneData.getDevices",
+  "total" : 48,
+  "results" : [ {
+    "@class" : "device",
+    "id" : 1110,
+    "ip" : "10.2.1.1",
+    "mac" : "00:0e:d7:1b:11:01",
+    "active" : false,
+    "firstObserved" : 1524244323000,
+    "lastObserved" : 1524244323000,
+    "phaseComplete" : false,
+    "created" : 1524431990907
+  }, {
+    "@class" : "device",
