@@ -17,8 +17,10 @@ class Server():
         self.url = "https://" + server + "/api/rest/"
         self.session.timeout = 1
 
-    def get(self, suffix, inparams):
-        return self.session.get(self.url+suffix, params=inparams)
+    def get(self, api, inparams):
+        r = self.session.get(self.url+api, params=inparams)
+        r.raise_for_status()
+        return r
 
 
 s = Server("i3", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMnsdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")

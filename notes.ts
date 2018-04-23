@@ -2,6 +2,7 @@
 
 
 
+
 16:19 Sun 22-Apr-18 EDT
 There are 3 ways to authenticate for API access:
 
@@ -72,3 +73,9 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWR
 'Accept':'json;pretty'},timeout=1)
 r.raise_for_status():
 
+21:48 Sun 22-Apr-18 EDT
+a = requests.auth.HTTPBasicAuth('admin','admin')
+r=requests.get("https://i3/api/rest/system/information",verify=False,auth=a)
+
+jar=r.cookies
+r=requests.get("https://i3/api/rest/system/information",verify=False,cookies=jar)
