@@ -1,6 +1,7 @@
 
 
 
+
 16:19 Sun 22-Apr-18 EDT
 There are 3 ways to authenticate for API access:
 
@@ -65,3 +66,9 @@ r=requests.get("https://i3/api/rest/system/information",verify=False,headers={'A
     "created" : 1524431990907
   }, {
     "@class" : "device",
+17:31 Sun 22-Apr-18 EDT
+r=requests.get("https://i3/api/rest/zonedata/devices",params={"filter.zone.id":"4"},verify=False,headers={'Authorization':"Bearer
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMnsdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds",
+'Accept':'json;pretty'},timeout=1)
+r.raise_for_status():
+
