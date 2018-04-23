@@ -18,7 +18,7 @@ class Server():
         self.session.timeout = 1
 
     def get(self, api, inparams):
-        r = self.session.get(self.url+api, params=inparams)
+        r = self.session.get(self.url+api, params=inparams,timeout=5)
         r.raise_for_status()
         return r
 
