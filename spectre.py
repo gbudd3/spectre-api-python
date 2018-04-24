@@ -16,8 +16,8 @@ class Server():
         self.url = "https://" + server + "/api/rest/"
         self.session.timeout = 1
 
-    def get(self, api, inparams=None):
-        r = self.session.get(self.url+api, params=inparams,timeout=5)
+    def get(self, api, params=None):
+        r = self.session.get(self.url+api, params=params,timeout=5)
         return r
 
 
