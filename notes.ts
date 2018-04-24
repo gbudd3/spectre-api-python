@@ -3,6 +3,7 @@
 
 
 
+
 16:19 Sun 22-Apr-18 EDT
 There are 3 ways to authenticate for API access:
 
@@ -79,3 +80,5 @@ r=requests.get("https://i3/api/rest/system/information",verify=False,auth=a)
 
 jar=r.cookies
 r=requests.get("https://i3/api/rest/system/information",verify=False,cookies=jar)
+22:17 Mon 23-Apr-18 EDT
+exec(open("/Users/gbudd/g/spectre-api-python/spectre.py").read())
