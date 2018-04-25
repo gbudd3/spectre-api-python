@@ -19,10 +19,20 @@ class Server():
 class APIKeyServer(Server):
 
     def __init__(self,server,api_key):
-            super(ApikeyServer,self).__init__(server)
+            super(APIKeyServer,self).__init__(server)
             self.session.headers = {'Authorization': "Bearer " + api_key,
                                     'Accept': 'json;pretty'}
 
 
 
-s = APIKeyServer("i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMnsdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
+if __name__ == '__main__': 
+
+    s = APIKeyServer("i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMnsdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
+    r=s.get("system/information")
+    print(r.headers)
+    print(r.text)
+
+    r=s.get("zonedata/devices",params={"filter.zone.id":"4"})
+    print(r.headers)
+    print(r.text)
+
