@@ -19,7 +19,8 @@ class Server():
 class APIKeyServer(Server):
 
     def __init__(self,server,api_key):
-            super(APIKeyServer,self).__init__(server)
+            #super(APIKeyServer,self).__init__(server)
+            super().__init__(server)
             self.session.headers = {'Authorization': "Bearer " + api_key,
                                     'Accept': 'json;pretty'}
 
