@@ -5,6 +5,9 @@ import json
 
 
 class Server():
+    """
+    A Server is used to make API Calls to a Lumeta Spectre server 
+    """
 
     def __init__(self, server):
         self.session = requests.Session()
@@ -13,13 +16,23 @@ class Server():
         self.session.timeout = 1
 
     def get(self, api, params=None):
+        """
+        """
         r = self.session.get(self.url+api, params=params,timeout=5)
         return r
 
 class APIKeyServer(Server):
+    """
+    An APIKeyServer is a Server that uses authentication via API key.
+    You get an API key from the CLI via the "user key new <username>" command
+    """
 
     def __init__(self,server,api_key):
-            #super(APIKeyServer,self).__init__(server)
+            """
+            APIKeyServer(server,api_key) where
+            server is the Spectre server you're connecting to and
+            api_key is the API key you've generated
+            """
             super().__init__(server)
             self.session.headers = {'Authorization': "Bearer " + api_key,
                                     'Accept': 'json;pretty'}
