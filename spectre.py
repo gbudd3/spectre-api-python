@@ -129,7 +129,7 @@ if __name__ == '__main__':
     S = APIKeyServer(
         "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
-        "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=500)
+        "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=5)
 
     R1 = S.getpage("system/information")
     print(R1.headers)
@@ -139,21 +139,4 @@ if __name__ == '__main__':
     print(R2.headers)
     print(R2.text)
 
-    R3 = S.get("zonedata/devices", params={"filter.zone.id": "4"})
-    count = 0
-    for d in R3:
-        count += 1
-        print("%d %s" % (count, d['mac']))
-    print("Total count of devices: %d" % count)
 
-    for size in (1, 5, 500):
-        s = APIKeyServer(
-            "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
-            "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
-            "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=size)
-
-        r4 = s.get("zonedata/devices", params={"filter.zone.id": "4"})
-        count = 0
-        for d in r4:
-            count += 1
-        print("Page size: %d, Count: %d" % (size, count))
