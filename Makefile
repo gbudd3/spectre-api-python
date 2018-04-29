@@ -4,4 +4,7 @@ test:
 	
 verbosetest:
 	python3 -m doctest  -v spectre.py
+
+lint:
+	pylint spectre.py
 	

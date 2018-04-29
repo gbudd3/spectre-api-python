@@ -22,7 +22,7 @@ class Server():
         self.url = "https://" + server + "/api/rest/"
         self.session.timeout = 1
 
-    def _get(self, api, params=None, page=1):
+    def getpage(self, api, params=None, page=1):
         """
         This private method is in place to handle the actual
         fetching of GET API calls
@@ -32,8 +32,8 @@ class Server():
 
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
-        r = self.session.get(self.url+api, params=params, timeout=5)
-        return r
+        results = self.session.get(self.url+api, params=params, timeout=5)
+        return results
 
     def get(self, api, params=None):
         """
@@ -53,10 +53,10 @@ class Response():
         self.params = params
         self.page = 0
         self.page_line = 0
-        self.r = self.server._get(api, params, page=self.page)
+        self.results = self.server.getpage(api, params, page=self.page)
 
-        if "total" in self.r.json():
-            self.total = self.r.json()['total']
+        if "total" in self.results.json():
+            self.total = self.results.json()['total']
         else:
             self.total = 1
 
@@ -70,21 +70,26 @@ class Response():
         if self.page_line < self.server.page_size:
             self.page_line += 1
             try:
-                return self.r.json()['results'][self.page_line - 1]
+                return self.results.json()['results'][self.page_line - 1]
             except IndexError:
                 raise StopIteration # This could happen if the underlying query shrinks under us
 
         else:
             self.page_line = 1
             self.page += 1
-            self.r = self.server._get(self.api, self.params, page=self.page)
+            self.results = self.server.getpage(self.api, self.params, page=self.page)
             try:
-                return self.r.json()['results'][0]
+                return self.results.json()['results'][0]
             except IndexError:
                 raise StopIteration # This could happen if the underlying query shrinks under us
 
     def pages(self):
+        """Return the highest page number (starting from page 0)"""
         return math.ceil(self.total / self.server.page_size)
+
+    def values(self):
+        """Return the values from the API call"""
+        return self.results.json()['results']
 
 
 
@@ -104,7 +109,7 @@ class APIKeyServer(Server):
         >>> s = APIKeyServer("i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"+ \
                 ".eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMns"+ \
                 "dPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
-        >>> r = s._get("system/information")
+        >>> r = s.getpage("system/information")
         >>> r.json()['status']
         'SUCCESS'
         >>> r.json()['results'][0]['name']
@@ -117,21 +122,22 @@ class APIKeyServer(Server):
 
 if __name__ == '__main__':
 
-    s = APIKeyServer(
+    S = APIKeyServer(
         "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=500)
-    r1 = s._get("system/information")
-    print(r1.headers)
-    print(r1.text)
 
-    r2 = s._get("zonedata/devices", params={"filter.zone.id": "4"})
-    print(r2.headers)
-    print(r2.text)
+    R1 = S.getpage("system/information")
+    print(R1.headers)
+    print(R1.text)
 
-    r3 = s.get("zonedata/devices", params={"filter.zone.id": "4"})
+    R2 = S.getpage("zonedata/devices", params={"filter.zone.id": "4"})
+    print(R2.headers)
+    print(R2.text)
+
+    R3 = S.get("zonedata/devices", params={"filter.zone.id": "4"})
     count = 0
-    for d in r3:
+    for d in R3:
         count += 1
         print("%d %s" % (count, d['mac']))
     print("Total count of devices: %d" % count)
@@ -141,13 +147,9 @@ if __name__ == '__main__':
             "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
             "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
             "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=size)
+
         r4 = s.get("zonedata/devices", params={"filter.zone.id": "4"})
         count = 0
         for d in r4:
             count += 1
-        print("Page size: %d, Count: %d" % (size,count))
-
-
-
-
-
+        print("Page size: %d, Count: %d" % (size, count))
