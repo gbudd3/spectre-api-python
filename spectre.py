@@ -5,6 +5,9 @@ a little easier.
 """
 import math
 import requests
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class Server():
@@ -61,19 +64,24 @@ class Response():
         return self
 
     def __next__(self):
-        print("Page: %d, Line: %d" % (self.page, self.page_line))
         if self.page * self.server.page_size + self.page_line == self.total:
             raise StopIteration
 
         if self.page_line < self.server.page_size:
             self.page_line += 1
-            return self.r.json()['results'][self.page_line - 1]
+            try:
+                return self.r.json()['results'][self.page_line - 1]
+            except IndexError:
+                raise StopIteration # This could happen if the underlying query shrinks under us
 
         else:
             self.page_line = 1
             self.page += 1
             self.r = self.server._get(self.api, self.params, page=self.page)
-            return self.r.json()['results'][0]
+            try:
+                return self.r.json()['results'][0]
+            except IndexError:
+                raise StopIteration # This could happen if the underlying query shrinks under us
 
     def pages(self):
         return math.ceil(self.total / self.server.page_size)
