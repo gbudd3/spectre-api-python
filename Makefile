@@ -5,6 +5,7 @@ test:
 	
 verbosetest:
 	python3 -m doctest  -v spectre.py
+	python3 -m unittest -v unittest_spectre.py
 
 lint:
 	pylint spectre.py
