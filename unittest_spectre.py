@@ -12,6 +12,7 @@ class TestAPIKeyServer(unittest.TestCase):
 
         self.assertEqual(r.json()['status'], 'SUCCESS', 'Status should be successful')
         self.assertEqual(v['name'],'i3','Name should be correct')
+        s.close()
             
 class TestPageSizes(unittest.TestCase):
     def test_pagesizes(self):
@@ -21,6 +22,7 @@ class TestPageSizes(unittest.TestCase):
             "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
         r = s.getpage("zonedata/devices", params={"filter.zone.id": "4"})
         correct_count = r.json()['total']
+        s.close()
 
         for size in (1, 2, 5, 7, 500):
             s = spectre.APIKeyServer(
@@ -33,4 +35,5 @@ class TestPageSizes(unittest.TestCase):
             count = 0
             for d in r:
                 count += 1
+            s.close()
             self.assertEqual(correct_count, count, 'Count should be the same at page size %d' % size)

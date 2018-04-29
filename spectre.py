@@ -23,6 +23,9 @@ class Server():
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    def close(self):
+        self.session.close()
+
     def getpage(self, api, params=None, page=0):
         """
         This private method is in place to handle the actual
