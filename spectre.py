@@ -7,7 +7,6 @@ import math
 import requests
 import urllib3
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class Server():
@@ -15,14 +14,16 @@ class Server():
     A Server is used to make API Calls to a Lumeta Spectre(r) server
     """
 
-    def __init__(self, server, page_size=500):
+    def __init__(self, server, page_size=500, verify_cert=False):
         self.session = requests.Session()
         self.session.verify = False
         self.page_size = page_size
         self.url = "https://" + server + "/api/rest/"
         self.session.timeout = 1
+        if verify_cert is False:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    def getpage(self, api, params=None, page=1):
+    def getpage(self, api, params=None, page=0):
         """
         This private method is in place to handle the actual
         fetching of GET API calls
