@@ -59,6 +59,14 @@ class TestRewind(unittest.TestCase):
 class TestUsernameServer(unittest.TestCase):
     def test_usernameserver(self):
         r = spectre.UsernameServer("i3", "admin", "admin").get("zonedata/devices", params={"filter.zone.id": "4"})
+        r.server.session.close()
         self.assertEqual(r.result()['@class'], "device", "@class should be device")
 
+    def test_usernameserverpaging(self):
+        r = spectre.UsernameServer("i3", "admin", "admin").get("zonedata/devices", params={"filter.zone.id": "4"})
+        count1 = 0
+        for d in r:
+            count1 += 1
 
+        r.server.session.close()
+        self.assertEqual(count1, r.total, "Count of records should equal r.total")
