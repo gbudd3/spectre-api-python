@@ -56,5 +56,9 @@ class TestRewind(unittest.TestCase):
         s.close()
         self.assertEqual(count1, count2, "Count should be equal every time through the iteration")
 
+class TestUsernameServer(unittest.TestCase):
+    def test_usernameserver(self):
+        r = spectre.UsernameServer("i3", "admin", "admin").get("zonedata/devices", params={"filter.zone.id": "4"})
+        self.assertEqual(r.result()['@class'], "device", "@class should be device")
 
 

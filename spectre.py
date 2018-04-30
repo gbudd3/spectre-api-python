@@ -131,6 +131,17 @@ class APIKeyServer(Server):
         self.session.headers = {'Authorization': "Bearer " + api_key,
                                 'Accept': 'json;pretty'}
 
+class UsernameServer(Server):
+    """
+    This Server uses username and password authentication for the initial
+    request, and then uses a session cookie from there out
+    """
+    def __init__(self, server, username, password, page_size=500):
+        super().__init__(server, page_size=page_size)
+        a = requests.auth.HTTPBasicAuth(username, password)
+        r = requests.get(self.url + "system/information", verify=False, auth=a)
+        self.session.cookies = r.cookies
+        self.session.headers = { 'Accept': 'json;pretty'}
 
 if __name__ == '__main__':
 
