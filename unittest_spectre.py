@@ -37,3 +37,24 @@ class TestPageSizes(unittest.TestCase):
                 count += 1
             s.close()
             self.assertEqual(correct_count, count, 'Count should be the same at page size %d' % size)
+
+class TestRewind(unittest.TestCase):
+    def test_rewind(self):
+        s = spectre.APIKeyServer(
+            "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
+            "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
+            "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
+        r = s.get("zonedata/devices", params={"filter.zone.id": "4"})
+        count1 = 0
+        for d in r:
+            count1 += 1
+
+        count2 = 0
+        for d in r:
+            count2 += 1
+
+        s.close()
+        self.assertEqual(count1, count2, "Count should be equal every time through the iteration")
+
+
+

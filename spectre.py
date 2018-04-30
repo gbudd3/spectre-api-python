@@ -8,7 +8,6 @@ import requests
 import urllib3
 
 
-
 class Server():
     """
     A Server is used to make API Calls to a Lumeta Spectre(r) server
@@ -64,11 +63,18 @@ class Response():
         else:
             self.total = 1
 
+    def rewind(self):
+        self.page = 0
+        self.page_line = 0
+        self.results = self.server.getpage(
+            self.api, self.params, page=self.page)
+
     def __iter__(self):
         return self
 
     def __next__(self):
         if self.page * self.server.page_size + self.page_line == self.total:
+            self.rewind()
             raise StopIteration
 
         if self.page_line < self.server.page_size:
@@ -76,25 +82,27 @@ class Response():
             try:
                 return self.results.json()['results'][self.page_line - 1]
             except IndexError:
-                raise StopIteration # This could happen if the underlying query shrinks under us
+                self.rewind()
+                raise StopIteration  # This could happen if the underlying query shrinks under us
 
         else:
             self.page_line = 1
             self.page += 1
-            self.results = self.server.getpage(self.api, self.params, page=self.page)
+            self.results = self.server.getpage(
+                self.api, self.params, page=self.page)
             try:
                 return self.results.json()['results'][0]
             except IndexError:
-                raise StopIteration # This could happen if the underlying query shrinks under us
+                self.rewind()
+                raise StopIteration  # This could happen if the underlying query shrinks under us
 
-    def pages(self):
-        """Return the highest page number (starting from page 0)"""
-        return math.ceil(self.total / self.server.page_size)
+    def result(self):
+        """Return result 0 (the only result for singletonds"""
+        return self.results.json()['results'][0]
 
     def values(self):
         """Return the values from the API call"""
         return self.results.json()['results']
-
 
 
 class APIKeyServer(Server):
@@ -138,5 +146,3 @@ if __name__ == '__main__':
     R2 = S.getpage("zonedata/devices", params={"filter.zone.id": "4"})
     print(R2.headers)
     print(R2.text)
-
-
