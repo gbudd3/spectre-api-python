@@ -26,6 +26,15 @@ class Server():
     def close(self):
         self.session.close()
 
+    def post(self,*args):
+        return self.session.post(*args)
+
+    def put(self,*args):
+        return self.session.post(*args)
+
+    def delete(self,*args):
+        return self.session.post(*args)
+
     def getpage(self, api, params=None, page=0):
         """
         This private method is in place to handle the actual
