@@ -19,6 +19,7 @@ class Server():
         self.page_size = page_size
         self.url = "https://" + server + "/api/rest/"
         self.session.timeout = 1
+        self.session.headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -128,8 +129,7 @@ class APIKeyServer(Server):
         'i3'
         """
         super().__init__(server, page_size=page_size)
-        self.session.headers = {'Authorization': "Bearer " + api_key,
-                                'Accept': 'json;pretty'}
+        self.session.headers['Authorization'] = "Bearer " + api_key
 
 class UsernameServer(Server):
     """
@@ -141,7 +141,6 @@ class UsernameServer(Server):
         a = requests.auth.HTTPBasicAuth(username, password)
         r = requests.get(self.url + "system/information", verify=False, auth=a)
         self.session.cookies = r.cookies
-        self.session.headers = { 'Accept': 'json;pretty'}
 
 if __name__ == '__main__':
 
