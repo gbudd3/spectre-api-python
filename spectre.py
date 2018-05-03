@@ -26,14 +26,14 @@ class Server():
     def close(self):
         self.session.close()
 
-    def post(self,*pargs, **kargs):
-        return self.session.post(*args, **kargs)
+    def post(self, api, **kargs):
+        return self.session.post(self.url + api, **kargs)
 
-    def put(self,*pargs, **kargs):
-        return self.session.post(*pargs, **kargs)
+    def put(self, api, **kargs):
+        return self.session.put(self.url + api, **kargs)
 
-    def delete(self,*pargs, **kargs):
-        return self.session.post(*pargs, **kargs)
+    def delete(self, api, **kargs):
+        return self.session.delete(self.url + api, **kargs)
 
     def getpage(self, api, params=None, page=0):
         """
