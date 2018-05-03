@@ -9,4 +9,7 @@ verbosetest:
 
 lint:
 	pylint src/spectre/spectre.py
+
+distribution:
+	python3 setup.py sdist bdist_wheel
 	
