@@ -27,6 +27,22 @@ class Server():
         self.session.close()
 
     def post(self, api, **kargs):
+        """
+        This method POSTs to the Spectre API
+        >>> import spectre
+        >>> s = spectre.UsernameServer("6hour", "admin", "admin")
+        >>> data = '''
+        ...         [{
+        ...             "@class":"zone",
+        ...             "name":"Twilight",
+        ...             "description": "Zone to Test Scanning",
+        ...             "organization":{"id":1, "name":"Test Organization"}
+        ...         }]
+        ...         '''
+        >>> r = s.post("zone", data=data)
+        >>> r.json()['status']
+        'SUCCESS'
+        """
         return self.session.post(self.url + api, **kargs)
 
     def put(self, api, **kargs):
