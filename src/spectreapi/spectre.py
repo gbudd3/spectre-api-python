@@ -29,8 +29,8 @@ class Server():
     def post(self, api, **kargs):
         """
         This method POSTs to the Spectre API
-        >>> import spectre
-        >>> s = spectre.UsernameServer("6hour", "admin", "admin")
+        >>> import spectreapi
+        >>> s = spectreapi.UsernameServer("6hour", "admin", "admin")
         >>> data = '''
         ...         [{
         ...             "@class":"zone",
@@ -69,6 +69,26 @@ class Server():
         Use this method to GET results from an API call
         """
         return Response(self, api, params)
+
+    def getZones(self):
+        zones = []
+        r = self.get('zone')
+        for z in r:
+            zones.append(Zone(z['id'], z['name'], z['description']))
+
+        return zones
+
+    def getCollectors(self):
+        collectors = []
+        r = self.get('zone/collector')
+        for c in r:
+            collectors.append(Collector(
+                c['id'],
+                c['uuid'],
+                c['name'],
+                Zone(c['zone']['id'], c['zone']['name'])))
+        return collectors
+            
 
 
 class Response():
@@ -143,7 +163,7 @@ class APIKeyServer(Server):
         server is the Spectre server you're connecting to and
         api_key is the API key you've generated
 
-        >>> import spectre
+        >>> import spectreapi
         >>> s = APIKeyServer("i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"+ \
                 ".eyJkYXRlIjoxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMns"+ \
                 "dPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
@@ -166,6 +186,19 @@ class UsernameServer(Server):
         a = requests.auth.HTTPBasicAuth(username, password)
         r = requests.get(self.url + "system/information", verify=False, auth=a)
         self.session.cookies = r.cookies
+
+class Zone:
+    def __init__(self, id, name, description=None):
+        self.id = id
+        self.name = name
+        self.description = description
+
+class Collector:
+    def __init__(self, id, uuid, name, zone):
+        self.id = id
+        self.uuid = uuid
+        self.name = name
+        self.zone = zone
 
 if __name__ == '__main__':
 
