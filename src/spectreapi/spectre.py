@@ -193,12 +193,25 @@ class Zone:
         self.name = name
         self.description = description
 
+    def __repr__(self):
+        return('Zone(%d, "%s", "%s")' % (self.id, self.name, self.description))
+
+    def __str__(self):
+        return('id=%d, name=%s, description=%s)' % (self.id, self.name, self.description))
+
 class Collector:
     def __init__(self, id, uuid, name, zone):
         self.id = id
         self.uuid = uuid
         self.name = name
         self.zone = zone
+
+    def __repr__(self):
+        return('Collector(%d, "%s", "%s", %s)' % (self.id, self.uuid, self.name, self.zone.__repr__()))
+
+    def __str__(self):
+        return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.str()))
+
 
 if __name__ == '__main__':
 
