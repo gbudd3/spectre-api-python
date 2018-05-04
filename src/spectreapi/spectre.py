@@ -74,7 +74,7 @@ class Server():
         zones = []
         r = self.get('zone')
         for z in r:
-            zones.append(Zone(z['id'], z['name'], z['description']))
+            zones.append(Zone(z['id'], z['name'], z['description'], server=self))
 
         return zones
 
@@ -86,7 +86,9 @@ class Server():
                 c['id'],
                 c['uuid'],
                 c['name'],
-                Zone(c['zone']['id'], c['zone']['name'])))
+                Zone(c['zone']['id'], c['zone']['name']),
+                server=self,
+            ))
         return collectors
             
 
@@ -188,10 +190,11 @@ class UsernameServer(Server):
         self.session.cookies = r.cookies
 
 class Zone:
-    def __init__(self, id, name, description=None):
+    def __init__(self, id, name, description=None, server=None):
         self.id = id
         self.name = name
         self.description = description
+        self.server = server
 
     def __repr__(self):
         return('Zone(%d, "%s", "%s")' % (self.id, self.name, self.description))
@@ -200,11 +203,12 @@ class Zone:
         return('id=%d, name=%s, description=%s)' % (self.id, self.name, self.description))
 
 class Collector:
-    def __init__(self, id, uuid, name, zone):
+    def __init__(self, id, uuid, name, zone, server=None):
         self.id = id
         self.uuid = uuid
         self.name = name
         self.zone = zone
+        self.server = server
 
     def __repr__(self):
         return('Collector(%d, "%s", "%s", %s)' % (self.id, self.uuid, self.name, self.zone.__repr__()))
