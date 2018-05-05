@@ -217,6 +217,9 @@ class Collector:
         return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.__str__()))
 
     def _getCidrs(self, type):
+        if type is not in ('target', 'avoid','stop'):
+            raise InvalidArgument('%s is not a valid type for _getCidrs')
+
         if self.server is None:
             raise NoServerException('Collector.getCidrs() requires a Collector with a server')
 
@@ -240,5 +243,8 @@ class SpectreException(Exception):
     pass
 
 class NoServerException(SpectreException):
+    pass
+
+class InvalidArgument(SpectreException):
     pass
 
