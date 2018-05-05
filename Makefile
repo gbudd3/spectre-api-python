@@ -1,8 +1,7 @@
 
 test:
 	pip install .
-	python3 -m doctest  src/spectre/spectre.py
-	python3 -m unittest tests/unittest_spectre.py
+	python3 -m doctest  src/spectreapi/spectre.py
 	pytest -v tests
 	
 lint:

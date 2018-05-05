@@ -11,6 +11,9 @@ import ipaddress
 class Server():
     """
     A Server is used to make API Calls to a Lumeta Spectre(r) server
+    It's not meant to be instantiated directly, use one of its 
+    subclasses (e.g. UsernameServer or APIKeyServer) based on how we're
+    authenticating to the Spectre Command Center in question.
     """
 
     def __init__(self, server, page_size=500, verify_cert=False):
@@ -90,12 +93,13 @@ class Server():
                 server=self,
             ))
         return collectors
-            
 
 
 class Response():
     """
     This class is used to present the results of a "GET" API call
+    It handles iterating through the results and fetching pages as 
+    needed from the server
     """
 
     def __init__(self, server, api, params):
@@ -145,7 +149,7 @@ class Response():
                 raise StopIteration  # This could happen if the underlying query shrinks under us
 
     def result(self):
-        """Return result 0 (the only result for singletonds"""
+        """Return result 0 (the only result for singletons"""
         return self.results.json()['results'][0]
 
     def values(self):
@@ -159,7 +163,7 @@ class APIKeyServer(Server):
     You get an API key from the CLI via the "user key new <username>" command
     """
 
-    def __init__(self, server, api_key, page_size=500):
+    def __init__(self, server, api_key, page_size=500, verify_cert=False):
         """
         APIKeyServer(server,api_key) where
         server is the Spectre server you're connecting to and
@@ -175,7 +179,7 @@ class APIKeyServer(Server):
         >>> r.json()['results'][0]['name']
         'i3'
         """
-        super().__init__(server, page_size=page_size)
+        super().__init__(server, page_size=page_size,verify_cert=verify_cert)
         self.session.headers['Authorization'] = "Bearer " + api_key
 
 class UsernameServer(Server):
@@ -183,8 +187,8 @@ class UsernameServer(Server):
     This Server uses username and password authentication for the initial
     request, and then uses a session cookie from there out
     """
-    def __init__(self, server, username, password, page_size=500):
-        super().__init__(server, page_size=page_size)
+    def __init__(self, server, username, password, page_size=500,verify_cert=False):
+        super().__init__(server, page_size=page_size,verify_cert=verify_cert)
         a = requests.auth.HTTPBasicAuth(username, password)
         r = requests.get(self.url + "system/information", verify=False, auth=a)
         self.session.cookies = r.cookies
@@ -217,7 +221,7 @@ class Collector:
         return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.__str__()))
 
     def _getCidrs(self, type):
-        if type is not in ('target', 'avoid','stop'):
+        if type not in ('target', 'avoid','stop'):
             raise InvalidArgument('%s is not a valid type for _getCidrs')
 
         if self.server is None:
@@ -231,6 +235,16 @@ class Collector:
         return cidrs
 
     def getTargetCidrs(self):
+        '''
+        >>> import spectreapi
+        >>> s = spectreapi.UsernameServer('6hour','admin','admin')
+        >>> c = s.getCollectors()[0]
+        >>> c
+        Collector(1, "70435342-4feb-11e8-9df5-005056b496e9", "RodSerling", Zone(2, "Twilight", "None"))
+        >>> c.getTargetCidrs()
+        [IPv4Network('10.201.0.7/32'), IPv4Network('10.224.0.0/24'), IPv4Network('10.224.2.0/24')]
+        >>>
+        '''
         return self._getCidrs('target')
 
     def getAvoidCidrs(self):
