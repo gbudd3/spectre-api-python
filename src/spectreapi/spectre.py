@@ -214,18 +214,27 @@ class Collector:
         return('Collector(%d, "%s", "%s", %s)' % (self.id, self.uuid, self.name, self.zone.__repr__()))
 
     def __str__(self):
-        return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.str()))
+        return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.__str__()))
 
-    def getCidrs(self, type):
+    def _getCidrs(self, type):
         if self.server is None:
             raise NoServerException('Collector.getCidrs() requires a Collector with a server')
 
         cidrs = []
-        r = server.get('zone/collector/%d/cidr/%s' % (self.id, type))
+        r = self.server.get('zone/collector/%d/cidr/%s' % (self.id, type))
         for c in r:
             cidrs.append(ipaddress.ip_network(c))
 
         return cidrs
+
+    def getTargetCidrs(self):
+        return self._getCidrs('target')
+
+    def getAvoidCidrs(self):
+        return self._getCidrs('avoid')
+
+    def getStopCidrs(self):
+        return self._getCidrs('stop')
 
 class SpectreException(Exception):
     pass
