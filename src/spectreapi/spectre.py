@@ -3,9 +3,9 @@
 The spectre module is used to make access to Lumeta's Spectre API
 a little easier.
 """
-import math
 import requests
 import urllib3
+import ipaddress
 
 
 class Server():
@@ -216,18 +216,20 @@ class Collector:
     def __str__(self):
         return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.str()))
 
+    def getCidrs(self, type):
+        if self.server is None:
+            raise NoServerException('Collector.getCidrs() requires a Collector with a server')
 
-if __name__ == '__main__':
+        cidrs = []
+        r = server.get('zone/collector/%d/cidr/%s' % (self.id, type))
+        for c in r:
+            cidrs.append(ipaddress.ip_network(c))
 
-    S = APIKeyServer(
-        "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
-        "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
-        "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=5)
+        return cidrs
 
-    R1 = S.getpage("system/information")
-    print(R1.headers)
-    print(R1.text)
+class SpectreException(Exception):
+    pass
 
-    R2 = S.getpage("zonedata/devices", params={"filter.zone.id": "4"})
-    print(R2.headers)
-    print(R2.text)
+class NoServerException(SpectreException):
+    pass
+
