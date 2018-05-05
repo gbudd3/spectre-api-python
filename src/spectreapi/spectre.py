@@ -27,6 +27,11 @@ class Server():
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def close(self):
+        '''
+        It's not _required_ to close a Server, but if you don't, you might 
+        hold tcp sockets open (the underlying requests and urllib3 modules
+        hold them for keepalive purposes)
+        '''
         self.session.close()
 
     def post(self, api, **kargs):
@@ -49,9 +54,11 @@ class Server():
         return self.session.post(self.url + api, **kargs)
 
     def put(self, api, **kargs):
+        '''Method PUTs through to the server'''
         return self.session.put(self.url + api, **kargs)
 
     def delete(self, api, **kargs):
+        '''Method DELETEs through to the server'''
         return self.session.delete(self.url + api, **kargs)
 
     def getpage(self, api, params=None, page=0):
@@ -70,10 +77,22 @@ class Server():
     def get(self, api, params=None):
         """
         Use this method to GET results from an API call
+        >>> import spectreapi
+        >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+        >>> s.get('zone').results.json()
+        {'@class': 'apiresponse', 'status': 'SUCCESS', 'method': 'ZoneManagement.getZones', 'total': 2, 'results': [{'@class': 'zone', 'id': 2, 'name': 'Twilight', 'description': 'Zone to Test Scanning'}, {'@class': 'zone', 'id': 1, 'name': 'Zone1', 'description': 'Default Zone'}]}
+        >>> r = s.get('zone')
+        >>> for z in r:
+        ...     print(z)
+        ...
+        {'@class': 'zone', 'id': 2, 'name': 'Twilight', 'description': 'Zone to Test Scanning'}
+        {'@class': 'zone', 'id': 1, 'name': 'Zone1', 'description': 'Default Zone'}
+        >>>
         """
         return Response(self, api, params)
 
     def getZones(self):
+        '''Returns the Zones configured on the server'''
         zones = []
         r = self.get('zone')
         for z in r:
@@ -82,6 +101,7 @@ class Server():
         return zones
 
     def getCollectors(self):
+        '''Returns the Collectors configured on the server'''
         collectors = []
         r = self.get('zone/collector')
         for c in r:
@@ -125,6 +145,7 @@ class Response():
         return self
 
     def __next__(self):
+        '''This facilitates being able to iterate over the results of a GET'''
         if self.page * self.server.page_size + self.page_line == self.total:
             self.rewind()
             raise StopIteration
