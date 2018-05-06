@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 """
 The spectre module is used to make access to Lumeta's Spectre API
-a little easier.
+a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 """
 import requests
 import urllib3
@@ -51,15 +51,26 @@ class Server():
         >>> r.json()['status']
         'SUCCESS'
         """
-        return self.session.post(self.url + api, **kargs)
+        r = self.session.post(self.url + api, **kargs)
+        if not r.ok:
+            raise APIError(r)
+        return r
 
     def put(self, api, **kargs):
         '''Method PUTs through to the server'''
-        return self.session.put(self.url + api, **kargs)
+        r = self.session.put(self.url + api, **kargs)
+        if not r.ok:
+            raise APIError(r)
+        return r
+
 
     def delete(self, api, **kargs):
         '''Method DELETEs through to the server'''
-        return self.session.delete(self.url + api, **kargs)
+        r = self.session.delete(self.url + api, **kargs)
+        if not r.ok:
+            raise APIError(r)
+        return r
+
 
     def getpage(self, api, params=None, page=0):
         """
@@ -72,11 +83,14 @@ class Server():
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
         results = self.session.get(self.url+api, params=params, timeout=5)
+        if not results.ok:
+            raise APIError(results)
         return results
 
     def get(self, api, params=None):
         """
-        Use this method to GET results from an API call
+        Use this method to GET results from an API call and produce
+        an iterable response
         >>> import spectreapi
         >>> s=spectreapi.UsernameServer('6hour','admin','admin')
         >>> s.get('zone').results.json()
@@ -285,9 +299,6 @@ class Collector:
     def setStopCidrs(self, *cidrs, append=False):
         return self._setCidrs('stop', *cidrs, append=append)
 
-
-
-
     def getTargetCidrs(self):
         '''
         >>> import spectreapi
@@ -315,4 +326,11 @@ class NoServerException(SpectreException):
 
 class InvalidArgument(SpectreException):
     pass
+
+class APIException(SpectreException):
+    def __init__(self,request):
+        self.request = request
+
+    def __str__(self):
+        return request.text
 
