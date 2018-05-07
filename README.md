@@ -30,6 +30,18 @@ For example:
 ```
 
 ## Servers
+A **Server** is the base class that has most of the functionality
+needed to use the Spectre API.  You'll instantiate a more specific
+**Server** based on which authentication method you're using.
+
+### UsernameServer
+`spectreapi.UsernameServer(<server>, <username>, <password>)`
+Where:
+<server> = The IP address or DNS name of the Spectre Command Center 
+<username>
+<password>
+
+### APIKeyServer
 
 ## GET, POST, PUT, DELETE
 
