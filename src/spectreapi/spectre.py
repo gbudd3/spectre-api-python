@@ -53,14 +53,14 @@ class Server():
         """
         r = self.session.post(self.url + api, **kargs)
         if not r.ok:
-            raise APIError(r)
+            raise APIException(r)
         return r
 
     def put(self, api, **kargs):
         '''Method PUTs through to the server'''
         r = self.session.put(self.url + api, **kargs)
         if not r.ok:
-            raise APIError(r)
+            raise APIException(r)
         return r
 
 
@@ -68,7 +68,7 @@ class Server():
         '''Method DELETEs through to the server'''
         r = self.session.delete(self.url + api, **kargs)
         if not r.ok:
-            raise APIError(r)
+            raise APIException(r)
         return r
 
 
@@ -84,7 +84,8 @@ class Server():
         params["query.page"] = page
         results = self.session.get(self.url+api, params=params, timeout=5)
         if not results.ok:
-            raise APIError(results)
+            print(results.text)
+            raise APIException(results)
         return results
 
     def get(self, api, params=None):
@@ -332,5 +333,5 @@ class APIException(SpectreException):
         self.request = request
 
     def __str__(self):
-        return request.text
+        return self.request.text
 
