@@ -35,7 +35,7 @@ needed to use the Spectre API.  You'll instantiate a more specific
 **Server** based on which authentication method you're using.
 
 ### UsernameServer
-`spectreapi.UsernameServer(<server>, <username>, <password>)`
+`spectreapi.UsernameServer(<server>, <username>, <password>, [<page_size>,] [<verify>])`
 Where:
 
 `<server>` = The IP address or DNS name of the Spectre Command Center 
@@ -44,7 +44,29 @@ Where:
 
 `<password>` = Password 
 
+`<page_size>` = How many results should a GET request return at a time.
+
+`<verify>` = Should we verify the SSL certificate of the server (True or False, defaults to False).  You'll want to leave this a False unless you've given your command center an actual SSL certificate.
+
+
+
+Behind the scenes, this makes an API call to `system/information` with basic authentication
+(over https) and then uses the resulting JSESSIONID cookie for the rest of the time.
+
 ### APIKeyServer
+`spectreapi.APIKeyServer(<server>, <api_key>, [, <page_size>] [, <verify>])`
+Where:
+
+`<server>` = The IP address or DNS name of the Spectre Command Center 
+
+`<api_key>` = API Key for API access.  You get this via the GUI or by issuing the
+`user key new <username>` command at the command center CLI.
+
+`<page_size>` = How many results should a GET request return at a time.
+
+`<verify>` = Should we verify the SSL certificate of the server (True or False, defaults to False).  You'll want to leave this a False unless you've given your command center an actual SSL certificate.
+
+
 
 ## GET, POST, PUT, DELETE
 
