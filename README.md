@@ -37,8 +37,11 @@ needed to use the Spectre API.  You'll instantiate a more specific
 ### UsernameServer
 `spectreapi.UsernameServer(<server>, <username>, <password>)`
 Where:
+
 `<server>` = The IP address or DNS name of the Spectre Command Center 
+
 `<username>` = Username
+
 `<password>` = Password 
 
 ### APIKeyServer
