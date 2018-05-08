@@ -6,6 +6,8 @@ The Lumeta Corporation's Spectre API.
 
 Lumeta and Spectre are both registered trademarks of the Lumeta Corporation
 
+Install this module by running `pip3 install spectre-api`
+
 ### Introduction
 This Python module is intended to be a relatively light weight wrapper around the Spectre API.
 The idea is to abstract out some of the authentication and paging pieces to make it easier to
