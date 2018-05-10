@@ -280,7 +280,6 @@ class Zone:
             raise NoServerException('Collector.setCidrs() requires a Zone with a server')
 
         clist = []
-        print('Printing cidrs:')
         print(cidrs)
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
@@ -288,7 +287,6 @@ class Zone:
         params = { "append": str(append).lower() }
 
         r = self.server.post('zone/%d/cidr/%s' % (self.id, type), data=data, params=params)
-        print("Data: %s" % data)
         if r.ok:
             return r
         
@@ -345,9 +343,10 @@ class Collector:
         clist = []
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
-        data = '{"addresses":[' + ','.join(clist) + ']}, append=%s' % append
+        data = '{"addresses":[' + ','.join(clist) + ']}'
+        params = { "append": str(append).lower() }
 
-        r = self.server.post('zone/collector/%d/cidr/%s' % (self.id, type), data=data)
+        r = self.server.post('zone/collector/%d/cidr/%s' % (self.id, type), data=data, params=params)
         if r.ok:
             return r
         
