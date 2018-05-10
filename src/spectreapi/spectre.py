@@ -23,8 +23,8 @@ class Server():
         self.session.verify = False
         self.page_size = page_size
         self.url = "https://" + server + "/api/rest/"
+        self.host = server
         self.session.timeout = 1
-        self.session.headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -53,13 +53,30 @@ class Server():
         >>> r.json()['status']
         'SUCCESS'
         """
+        if 'headers' not in kargs:
+            kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
+
         r = self.session.post(self.url + api, **kargs)
         if not r.ok:
             raise APIException(r)
         return r
 
+    def raw_post(self, api, **kargs):
+            """
+            This method POSTs to the Spectre API but _doesn't_ set any headers.
+            This is so we can make things like file uploads work.
+            """
+            r = self.session.post(self.url + api, **kargs)
+            if not r.ok:
+                raise APIException(r)
+            return r
+
     def put(self, api, **kargs):
         '''Method PUTs through to the server'''
+
+        if 'headers' not in kargs:
+            kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
+
         r = self.session.put(self.url + api, **kargs)
         if not r.ok:
             raise APIException(r)
@@ -67,6 +84,10 @@ class Server():
 
 
     def delete(self, api, **kargs):
+
+        if 'headers' not in kargs:
+            kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
+
         '''Method DELETEs through to the server'''
         r = self.session.delete(self.url + api, **kargs)
         if not r.ok:
@@ -74,7 +95,7 @@ class Server():
         return r
 
 
-    def getpage(self, api, params=None, page=0):
+    def getpage(self, api, params=None, page=0, headers=None):
         """
         This private method is in place to handle the actual
         fetching of GET API calls
@@ -82,9 +103,12 @@ class Server():
         if params is None:
             params = {"query.pagesize": self.page_size}
 
+        if headers is None:
+            headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
+
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
-        results = self.session.get(self.url+api, params=params, timeout=5)
+        results = self.session.get(self.url+api, params=params, timeout=5, headers=headers)
         if not results.ok:
             print(results.text)
             raise APIException(results)
