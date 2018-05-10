@@ -1,9 +1,11 @@
 
 test:
 	pip install .
-	python3 -m doctest  src/spectreapi/spectre.py
 	pytest -v tests
 	
+doctest:
+	python3 -m doctest  src/spectreapi/spectre.py
+
 lint:
 	pylint src/spectre/spectre.py
 
