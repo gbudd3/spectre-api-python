@@ -114,6 +114,18 @@ class Server():
             zones.append(Zone(z['id'], z['name'], z['description'], server=self))
 
         return zones
+    
+    def getZoneByName(self,name):
+        '''Returns the Zone configured on the server named <name> (if present)'''
+        zones = []
+        r = self.get('zone')
+        for z in r:
+            if z['name'] == name:
+                return Zone(z['id'], z['name'], z['description'], server=self)
+
+        return None
+
+
 
     def getCollectors(self):
         '''Returns the Collectors configured on the server'''

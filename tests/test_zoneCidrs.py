@@ -1,8 +1,7 @@
 import ipaddress
 
 def test_setCidrs(server):
-    zones = server.getZones()
-    zone = zones[1]
+    zone = server.getZoneByName('Twilight')
 
     assert zone.setKnownCidrs(ipaddress.ip_network('1.1.1.1')).ok == True
     assert zone.setKnownCidrs('1.1.1.2',append=True).ok == True
@@ -11,8 +10,7 @@ def test_setCidrs(server):
     assert zone.setInternalCidrs('3.3.3.3').ok == True
 
 def test_getCidrs(server):
-    zones = server.getZones()
-    zone = zones[1]
+    zone = server.getZoneByName('Twilight')
 
     c = zone.getKnownCidrs()
     assert ipaddress.ip_network('1.1.1.1/32') in c
