@@ -1,4 +1,5 @@
 import spectreapi
+from spectreapi.zone import Zone
 import pytest
 
 @pytest.fixture()
