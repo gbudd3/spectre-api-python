@@ -107,7 +107,7 @@ class Server():
         return Response(self, api, params)
 
     def getZones(self):
-        '''Returns the Zones configured on the server'''
+        '''Returns all the Zones configured on the server'''
         zones = []
         r = self.get('zone')
         for z in r:
@@ -141,6 +141,22 @@ class Server():
             ))
         return collectors
 
+    def getCollectorByName(self,name):
+        '''Returns the Collector configured on the server named <name> (if present)'''
+        zones = []
+        r = self.get('zone/collector')
+        for c in r:
+            if c['name'] == name:
+                return Collector(
+                c['id'],
+                c['uuid'],
+                c['name'],
+                Zone(c['zone']['id'], c['zone']['name']),
+                server=self,
+            )
+
+        return None
+
 
 class Response():
     """
@@ -163,6 +179,7 @@ class Response():
             self.total = 1
 
     def rewind(self):
+        '''Used to reset state after iterating over results'''
         self.page = 0
         self.page_line = 0
         self.results = self.server.getpage(
