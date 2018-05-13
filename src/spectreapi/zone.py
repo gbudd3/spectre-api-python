@@ -76,3 +76,23 @@ class Zone:
         return self._setCidrs('internal', *cidrs, append=append)
 
 
+    def getDeviceDetailsByIP(self,ip):
+        return self.server.get('zonedata/devices',params = {
+                'filter.zone.id': self.id,
+                'filter.address.ip' : ip,
+                'detail.ScanType' : True,
+                'detail.Attributes' : True,
+                'detail.Protocol' : True,
+                'detail.Port' : True,
+                'detail.AlternateAddress' : True,
+                #'detail.Profile' : True,
+                #'detail.ProfileDetails' : True,
+                'detail.ReferenceIp' : True,
+                'detail.Details' : True,
+                'detail.LeakResponse' : True,
+                'detail.Certificate' : True,
+                'detail.Interfaces' : True,
+                'detail.Vlans' : True,
+                'detail.Collector' : True,
+            })
+
