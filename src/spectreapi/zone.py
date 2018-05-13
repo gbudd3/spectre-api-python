@@ -77,6 +77,7 @@ class Zone:
 
 
     def getDeviceDetailsByIP(self,ip):
+        '''Return the device(s) for a zone with an address of <ip>'''
         return self.server.get('zonedata/devices',params = {
                 'filter.zone.id': self.id,
                 'filter.address.ip' : ip,
