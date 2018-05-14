@@ -272,6 +272,8 @@ class APIKeyServer(Server):
         """
         super().__init__(server, page_size=page_size,verify_cert=verify_cert)
         self.session.headers['Authorization'] = "Bearer " + api_key
+        r = self.get("system/information")
+        self.version = r.result()['version']
 
 class UsernameServer(Server):
     """
@@ -281,7 +283,9 @@ class UsernameServer(Server):
     def __init__(self, server, username, password, page_size=500,verify_cert=False):
         super().__init__(server, page_size=page_size,verify_cert=verify_cert)
         a = requests.auth.HTTPBasicAuth(username, password)
-        r = requests.get(self.url + "system/information", verify=False, auth=a)
+        headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
+        r = requests.get(self.url + "system/information", headers=headers, verify=False, auth=a)
+        self.version = r.json()['results'][0]['version']
         self.session.cookies = r.cookies
 
 

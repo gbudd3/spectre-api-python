@@ -1,4 +1,5 @@
 import ipaddress
+from distutils.version import LooseVersion
 
 class Zone:
     def __init__(self, id, name, description=None, server=None):
@@ -78,7 +79,7 @@ class Zone:
 
     def getDeviceDetailsByIP(self,ip):
         '''Return the device(s) for a zone with an address of <ip>'''
-        return self.server.get('zonedata/devices',params = {
+        params = {
                 'filter.zone.id': self.id,
                 'filter.address.ip' : ip,
                 'detail.ScanType' : True,
@@ -95,5 +96,11 @@ class Zone:
                 'detail.Interfaces' : True,
                 'detail.Vlans' : True,
                 'detail.Collector' : True,
-            })
+            }
+
+        if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
+            params['detail.Profile'] = True
+            params['detail.ProfileDetails'] = True
+        
+        return self.server.get('zonedata/devices',params=params)
 

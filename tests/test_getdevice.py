@@ -9,5 +9,5 @@ def test_nodevice(server):
 
 def test_hasdevice(server):
     zone = server.getZoneByName('Twilight')
-    result = zone.getDeviceDetailsByIP('172.16.22.41')
-    assert result.result()['active'], "This should be an active device"
+    results = zone.getDeviceDetailsByIP('172.16.22.41')
+    assert len(results.values()) == 1, "There should be a results for this IP"
