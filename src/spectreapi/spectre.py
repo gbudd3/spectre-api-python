@@ -177,7 +177,7 @@ class Server():
                 c['id'],
                 c['uuid'],
                 c['name'],
-                specterapi.Zone(c['zone']['id'], c['zone']['name']),
+                Zone(c['zone']['id'], c['zone']['name']),
                 server=self,
             )
 
