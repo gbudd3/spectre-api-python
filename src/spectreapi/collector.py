@@ -22,9 +22,9 @@ class Collector:
         return('id=%d, uuid=%s, name=%s, zone=%s)' %
                (self.id_num, self.uuid, self.name, self.zone.__str__()))
 
-    def _getCidrs(self, cidr_type):
+    def _get_cidrs(self, cidr_type):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectre.InvalidArgument('%s is not a valid type for _getCidrs')
+            raise spectre.InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
             raise spectre.NoServerException('Collector.getCidrs() needs a Collector with a server')
@@ -36,9 +36,9 @@ class Collector:
 
         return cidrs
 
-    def _setCidrs(self, cidr_type, *cidrs, append=False):
+    def _set_cidrs(self, cidr_type, *cidrs, append=False):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectre.InvalidArgument('%s is not a valid type for _setCidrs')
+            raise spectre.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
             raise spectre.NoServerException('Collector.setCidrs() needs a Collector with a server')
@@ -56,7 +56,7 @@ class Collector:
 
         raise spectre.SpectreException(results.text)
 
-    def setTargetCidrs(self, *cidrs, append=False):
+    def set_target_cidrs(self, *cidrs, append=False):
         ''' Sets Targets for a given Collector.
         By default it will overwrite all targets for this collector, set append=True
         to add CIDRs to the target list.
@@ -64,28 +64,28 @@ class Collector:
         >>> import spectreapi
         >>> server = spectreapi.UsernameServer('6hour','admin','admin')
         >>> collector = server.getCollectorByName('RodSerling')
-        >>> collector.getTargetCidrs() # doctest: +ELLIPSIS
+        >>> collector.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
-        >>> collector.setTargetCidrs('10.0.0.1/32','10.0.0.2/32',append=True)
+        >>> collector.set_target_cidrs('10.0.0.1/32','10.0.0.2/32',append=True)
         <Response [200]>
-        >>> collector.getTargetCidrs() # doctest: +ELLIPSIS
+        >>> collector.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
         >>>
         '''
-        return self._setCidrs('target', *cidrs, append=append)
+        return self._set_cidrs('target', *cidrs, append=append)
 
-    def setAvoidCidrs(self, *cidrs, append=False):
+    def set_avoid_cidrs(self, *cidrs, append=False):
         '''Set "Avoid" CIDRs, Spectre shouldn't emit packets
         at these addresses (though we could trace through them
         via path as we're not targeting the hops themselves)'''
-        return self._setCidrs('avoid', *cidrs, append=append)
+        return self._set_cidrs('avoid', *cidrs, append=append)
 
-    def setStopCidrs(self, *cidrs, append=False):
+    def set_stop_cidrs(self, *cidrs, append=False):
         '''Set "Stop" CIDRs, if Spectre sees a hop in one of
         these CIDRs it should stop tracing that path'''
-        return self._setCidrs('stop', *cidrs, append=append)
+        return self._set_cidrs('stop', *cidrs, append=append)
 
-    def getTargetCidrs(self):
+    def get_target_cidrs(self):
         '''
         Gets the "Target" CIDRs for this collector
 
@@ -94,16 +94,16 @@ class Collector:
         >>> c = s.getCollectors()[0]
         >>> c.name
         'RodSerling'
-        >>> c.getTargetCidrs() # doctest: +ELLIPSIS
+        >>> c.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
         >>>
         '''
-        return self._getCidrs('target')
+        return self._get_cidrs('target')
 
-    def getAvoidCidrs(self):
+    def get_avoid_cidrs(self):
         '''Return the list of "Avoid" CIDRs for this collector'''
-        return self._getCidrs('avoid')
+        return self._get_cidrs('avoid')
 
-    def getStopCidrs(self):
+    def get_stop_cidrs(self):
         '''Return the list of "Stop" CIDRs for this collector'''
-        return self._getCidrs('stop')
+        return self._get_cidrs('stop')
