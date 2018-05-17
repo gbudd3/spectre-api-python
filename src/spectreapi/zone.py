@@ -77,26 +77,26 @@ class Zone:
         return self._setCidrs('internal', *cidrs, append=append)
 
 
-    def getDeviceDetailsByIP(self,ip):
+    def getDeviceDetailsByIP(self, ip):
         '''Return the device(s) for a zone with an address of <ip>'''
         params = {
-                'filter.zone.id': self.id,
-                'filter.address.ip' : ip,
-                'detail.ScanType' : True,
-                'detail.Attributes' : True,
-                'detail.Protocol' : True,
-                'detail.Port' : True,
-                'detail.AlternateAddress' : True,
-                #'detail.Profile' : True,
-                #'detail.ProfileDetails' : True,
-                'detail.ReferenceIp' : True,
-                'detail.Details' : True,
-                'detail.LeakResponse' : True,
-                'detail.Certificate' : True,
-                'detail.Interfaces' : True,
-                'detail.Vlans' : True,
-                'detail.Collector' : True,
-            }
+            'filter.zone.id': self.id,
+            'filter.address.ip' : ip,
+            'detail.ScanType' : True,
+            'detail.Attributes' : True,
+            'detail.Protocol' : True,
+            'detail.Port' : True,
+            'detail.AlternateAddress' : True,
+            #'detail.Profile' : True,
+            #'detail.ProfileDetails' : True,
+            'detail.ReferenceIp' : True,
+            'detail.Details' : True,
+            'detail.LeakResponse' : True,
+            'detail.Certificate' : True,
+            'detail.Interfaces' : True,
+            'detail.Vlans' : True,
+            'detail.Collector' : True,
+        }
 
         if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
             params['detail.Profile'] = True

@@ -48,12 +48,31 @@ class Collector:
         raise SpectreException(r.text)
 
     def setTargetCidrs(self, *cidrs, append=False):
+        ''' Sets Targets for a given Collector.
+        By default it will overwrite all targets for this collector, set append=True
+        to add CIDRs to the target list.
+        >>> import spectreapi
+        >>> server = spectreapi.UsernameServer('6hour','admin','admin')
+        >>> collector = server.getCollectorByName('RodSerling')
+        >>> collector.getTargetCidrs() # doctest: +ELLIPSIS
+        [IPv4Network(...
+        >>> collector.setTargetCidrs('10.0.0.1/32','10.0.0.2/32',append=True)
+        <Response [200]>
+        >>> collector.getTargetCidrs() # doctest: +ELLIPSIS
+        [IPv4Network(...
+        >>>
+        '''
         return self._setCidrs('target', *cidrs, append=append)
 
     def setAvoidCidrs(self, *cidrs, append=False):
+        '''Set "Avoid" CIDRs, Spectre shouldn't emit packets
+        at these addresses (though we could trace through them
+        via path as we're not targeting the hops themselves)'''
         return self._setCidrs('avoid', *cidrs, append=append)
 
     def setStopCidrs(self, *cidrs, append=False):
+        '''Set "Stop" CIDRs, if Spectre sees a hop in one of 
+        these CIDRs it should stop tracing that path'''
         return self._setCidrs('stop', *cidrs, append=append)
 
     def getTargetCidrs(self):
@@ -63,8 +82,8 @@ class Collector:
         >>> c = s.getCollectors()[0]
         >>> c.name
         'RodSerling'
-        >>> c.getTargetCidrs()
-        [IPv4Network('10.201.0.7/32'), IPv4Network('10.224.0.0/24'), IPv4Network('10.224.2.0/24'), IPv4Network('172.16.22.41/32')]
+        >>> c.getTargetCidrs() # doctest: +ELLIPSIS
+        [IPv4Network(...
         >>>
         '''
         return self._getCidrs('target')

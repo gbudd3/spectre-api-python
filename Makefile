@@ -4,10 +4,10 @@ test:
 	pytest -v tests
 	
 doctest:
-	python3 -m doctest  src/spectreapi/spectre.py
+	python3 -m doctest -v  src/spectreapi/*.py
 
 lint:
-	pylint src/spectre/spectre.py
+	pylint src/spectreapi/*.py
 
 distribution:
 	rm -f dist/*
