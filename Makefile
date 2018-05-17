@@ -4,7 +4,7 @@ test:
 	pytest -v tests
 	
 doctest:
-	python3 -m doctest -v  src/spectreapi/*.py
+	python3 -m doctest src/spectreapi/*.py
 
 lint:
 	pylint src/spectreapi/*.py
