@@ -1,4 +1,4 @@
-'''module collector
+'''This module carries the code needed to deal with Spectre collectors
 '''
 import ipaddress
 from spectreapi import spectre
@@ -60,6 +60,7 @@ class Collector:
         ''' Sets Targets for a given Collector.
         By default it will overwrite all targets for this collector, set append=True
         to add CIDRs to the target list.
+
         >>> import spectreapi
         >>> server = spectreapi.UsernameServer('6hour','admin','admin')
         >>> collector = server.getCollectorByName('RodSerling')
@@ -86,6 +87,8 @@ class Collector:
 
     def getTargetCidrs(self):
         '''
+        Gets the "Target" CIDRs for this collector
+
         >>> import spectreapi
         >>> s = spectreapi.UsernameServer('6hour','admin','admin')
         >>> c = s.getCollectors()[0]
