@@ -25,3 +25,13 @@ def test_addTargetsOverwrite(server):
     targets = collector.getTargetCidrs()
     assert ipaddress.ip_network('10.0.0.1') not in targets, "10.201.0.7/32 should not be in RodSerling targets"
 
+def test_invalid_cidr_type(server):
+    collector = server.getCollectorByName('RodSerling')
+    try:
+        collector._getCidrs('foo')
+    except spectreapi.InvalidArgument:
+        assert True, "_getCidrs('foo') raised an InvalidArgument"
+        return
+    assert False, "_getCidrs('foo') should have raised an InvalidArgument"
+    
+

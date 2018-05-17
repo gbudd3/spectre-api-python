@@ -1,51 +1,60 @@
+'''module collector
+'''
 import ipaddress
+from spectreapi import spectre
 
 class Collector:
-    def __init__(self, id, uuid, name, zone, server=None):
-        self.id = id
+    '''This class encapsulates operations on Spectre collectors.
+    a "Collector" is a set of scan configuration associated with a specific
+    Scout network interface.'''
+    def __init__(self, id_num, uuid, name, zone, server=None):
+        self.id_num = id_num
         self.uuid = uuid
         self.name = name
         self.zone = zone
         self.server = server
 
     def __repr__(self):
-        return('Collector(%d, "%s", "%s", %s)' % (self.id, self.uuid, self.name, self.zone.__repr__()))
+        return('Collector(%d, "%s", "%s", %s)' %
+               (self.id_num, self.uuid, self.name, self.zone.__repr__()))
 
     def __str__(self):
-        return('id=%d, uuid=%s, name=%s, zone=%s)' % (self.id, self.uuid, self.name, self.zone.__str__()))
+        return('id=%d, uuid=%s, name=%s, zone=%s)' %
+               (self.id_num, self.uuid, self.name, self.zone.__str__()))
 
-    def _getCidrs(self, type):
-        if type not in ('target', 'avoid','stop'):
-            raise InvalidArgument('%s is not a valid type for _getCidrs')
+    def _getCidrs(self, cidr_type):
+        if cidr_type not in ('target', 'avoid', 'stop'):
+            raise spectre.InvalidArgument('%s is not a valid type for _getCidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.getCidrs() requires a Collector with a server')
+            raise spectre.NoServerException('Collector.getCidrs() needs a Collector with a server')
 
         cidrs = []
-        r = self.server.get('zone/collector/%d/cidr/%s' % (self.id, type))
-        for c in r:
-            cidrs.append(ipaddress.ip_network(c))
+        cidr_results = self.server.get('zone/collector/%d/cidr/%s' % (self.id_num, cidr_type))
+        for cidr in cidr_results:
+            cidrs.append(ipaddress.ip_network(cidr))
 
         return cidrs
 
-    def _setCidrs(self, type, *cidrs, append=False):
-        if type not in ('target', 'avoid','stop'):
-            raise InvalidArgument('%s is not a valid type for _setCidrs')
+    def _setCidrs(self, cidr_type, *cidrs, append=False):
+        if cidr_type not in ('target', 'avoid', 'stop'):
+            raise spectre.InvalidArgument('%s is not a valid type for _setCidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.getCidrs() requires a Collector with a server')
+            raise spectre.NoServerException('Collector.setCidrs() needs a Collector with a server')
 
         clist = []
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
         data = '{"addresses":[' + ','.join(clist) + ']}'
-        params = { "append": str(append).lower() }
+        params = {"append": str(append).lower()}
 
-        r = self.server.post('zone/collector/%d/cidr/%s' % (self.id, type), data=data, params=params)
-        if r.ok:
-            return r
-        
-        raise SpectreException(r.text)
+        results = self.server.post('zone/collector/%d/cidr/%s' %
+                                   (self.id_num, cidr_type), data=data, params=params)
+        if results.ok:
+            return results
+
+        raise spectre.SpectreException(results.text)
 
     def setTargetCidrs(self, *cidrs, append=False):
         ''' Sets Targets for a given Collector.
@@ -71,7 +80,7 @@ class Collector:
         return self._setCidrs('avoid', *cidrs, append=append)
 
     def setStopCidrs(self, *cidrs, append=False):
-        '''Set "Stop" CIDRs, if Spectre sees a hop in one of 
+        '''Set "Stop" CIDRs, if Spectre sees a hop in one of
         these CIDRs it should stop tracing that path'''
         return self._setCidrs('stop', *cidrs, append=append)
 
@@ -89,9 +98,9 @@ class Collector:
         return self._getCidrs('target')
 
     def getAvoidCidrs(self):
+        '''Return the list of "Avoid" CIDRs for this collector'''
         return self._getCidrs('avoid')
 
     def getStopCidrs(self):
+        '''Return the list of "Stop" CIDRs for this collector'''
         return self._getCidrs('stop')
-
-
