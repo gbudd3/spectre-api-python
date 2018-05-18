@@ -5,8 +5,7 @@ a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 """
 import requests
 import urllib3
-#from spectreapi.zone import Zone
-#from spectreapi.collector import Collector
+import spectreapi
 
 
 class Server():
@@ -136,7 +135,7 @@ class Server():
         zones = []
         result = self.get('zone')
         for zone in result:
-            zones.append(Zone(zone['id'], zone['name'], zone['description'], server=self))
+            zones.append(spectreapi.Zone(zone['id'], zone['name'], zone['description'], server=self))
 
         return zones
 
@@ -145,7 +144,7 @@ class Server():
         results = self.get('zone')
         for zone in results:
             if zone['name'] == name:
-                return Zone(zone['id'], zone['name'], zone['description'], server=self)
+                return spectreapi.Zone(zone['id'], zone['name'], zone['description'], server=self)
 
         return None
 
@@ -155,11 +154,11 @@ class Server():
         collectors = []
         results = self.get('zone/collector')
         for collector in results:
-            collectors.append(collector.Collector(
+            collectors.append(spectreapi.Collector(
                 collector['id'],
                 collector['uuid'],
                 collector['name'],
-                Zone(collector['zone']['id'], collector['zone']['name']),
+                spectreapi.Zone(collector['zone']['id'], collector['zone']['name']),
                 server=self,
             ))
         return collectors
@@ -169,11 +168,11 @@ class Server():
         results = self.get('zone/collector')
         for collector in results:
             if collector['name'] == name:
-                return Collector(
+                return spectreapi.Collector(
                     collector['id'],
                     collector['uuid'],
                     collector['name'],
-                    Zone(collector['zone']['id'], collector['zone']['name']),
+                    spectreapi.Zone(collector['zone']['id'], collector['zone']['name']),
                     server=self,
                 )
 

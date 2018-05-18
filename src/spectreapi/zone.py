@@ -1,7 +1,7 @@
 '''Module to handle Spectre Zones'''
 import ipaddress
 from distutils.version import LooseVersion
-from spectreapi.spectre import SpectreException, NoServerException, InvalidArgument
+import spectreapi
 
 class Zone:
     '''Class abstracts out Spectre Zones'''
@@ -19,10 +19,10 @@ class Zone:
 
     def _get_cidrs(self, cidr_type):
         if cidr_type not in ('known', 'trusted', 'internal'):
-            raise InvalidArgument('%s is not a valid type for _get_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
-            raise NoServerException(
+            raise spectreapi.NoServerException(
                 'Collector.getCidrs() requires a Collector with a server')
 
         cidrs = []
@@ -52,10 +52,10 @@ class Zone:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False):
         if cidr_type not in ('known', 'trusted', 'internal'):
-            raise InvalidArgument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise NoServerException(
+            raise spectreapi.NoServerException(
                 'Collector.setCidrs() requires a Zone with a server')
 
         clist = []
@@ -70,7 +70,7 @@ class Zone:
         if results.ok:
             return results
 
-        raise SpectreException(results.text)
+        raise spectreapi.SpectreException(results.text)
 
     def set_known_cidrs(self, *cidrs, append=False):
         '''Set "known" CIDRs for this zone.'''

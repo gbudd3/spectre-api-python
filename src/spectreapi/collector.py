@@ -1,7 +1,7 @@
 '''This module carries the code needed to deal with Spectre collectors
 '''
 import ipaddress
-from spectreapi.spectre import SpectreException, NoServerException, InvalidArgument
+import spectreapi
 
 class Collector:
     '''This class encapsulates operations on Spectre collectors.
@@ -24,10 +24,10 @@ class Collector:
 
     def _get_cidrs(self, cidr_type):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise InvalidArgument('%s is not a valid type for _get_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.getCidrs() needs a Collector with a server')
+            raise spectreapi.NoServerException('Collector.getCidrs() needs a Collector with a server')
 
         cidrs = []
         cidr_results = self.server.get('zone/collector/%d/cidr/%s' % (self.id_num, cidr_type))
@@ -38,10 +38,10 @@ class Collector:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise InvalidArgument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.setCidrs() needs a Collector with a server')
+            raise spectreapi.NoServerException('Collector.setCidrs() needs a Collector with a server')
 
         clist = []
         for cidr in cidrs:
@@ -54,7 +54,7 @@ class Collector:
         if results.ok:
             return results
 
-        raise SpectreException(results.text)
+        raise spectreapi.SpectreException(results.text)
 
     def set_target_cidrs(self, *cidrs, append=False):
         ''' Sets Targets for a given Collector.
