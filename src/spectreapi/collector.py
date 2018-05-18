@@ -27,7 +27,7 @@ class Collector:
             raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.getCidrs() needs a Collector with a server')
+            raise spectreapi.NoServerException('Collector.getCidrs() needs a Collector with server')
 
         cidrs = []
         cidr_results = self.server.get('zone/collector/%d/cidr/%s' % (self.id_num, cidr_type))
@@ -41,7 +41,7 @@ class Collector:
             raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.setCidrs() needs a Collector with a server')
+            raise spectreapi.NoServerException('Collector.setCidrs() needs a Collector with server')
 
         clist = []
         for cidr in cidrs:
