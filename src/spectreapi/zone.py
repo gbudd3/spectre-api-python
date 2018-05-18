@@ -1,86 +1,98 @@
+'''Module to handle Spectre Zones'''
 import ipaddress
 from distutils.version import LooseVersion
+from spectreapi.spectre import SpectreException, NoServerException, InvalidArgument
 
 class Zone:
-    def __init__(self, id, name, description=None, server=None):
-        self.id = id
+    '''Class abstracts out Spectre Zones'''
+    def __init__(self, id_num, name, description=None, server=None):
+        self.id_num = id_num
         self.name = name
         self.description = description
         self.server = server
 
     def __repr__(self):
-        return('Zone(%d, "%s", "%s")' % (self.id, self.name, self.description))
+        return 'Zone(%d, "%s", "%s")' % (self.id_num, self.name, self.description)
 
     def __str__(self):
-        return('id=%d, name=%s, description=%s)' % (self.id, self.name, self.description))
+        return 'id=%d, name=%s, description=%s)' % (self.id_num, self.name, self.description)
 
-    def _getCidrs(self, type):
-        if type not in ('known', 'trusted','internal'):
-            raise InvalidArgument('%s is not a valid type for _getCidrs')
+    def _get_cidrs(self, cidr_type):
+        if cidr_type not in ('known', 'trusted', 'internal'):
+            raise InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.getCidrs() requires a Collector with a server')
+            raise NoServerException(
+                'Collector.getCidrs() requires a Collector with a server')
 
         cidrs = []
-        r = self.server.get('zone/%d/cidr/%s' % (self.id, type))
-        for c in r:
-            cidrs.append(ipaddress.ip_network(c))
+        results = self.server.get('zone/%d/cidr/%s' % (self.id_num, cidr_type))
+        for cidr in results:
+            cidrs.append(ipaddress.ip_network(cidr))
 
         return cidrs
 
-    def getKnownCidrs(self):
-        return self._getCidrs('known')
+    def get_known_cidrs(self):
+        '''Return "known" CIDRs for this zone'''
+        return self._get_cidrs('known')
 
-    def getEligibleCidrs(self):
+    def get_eligible_cidrs(self):
         '''For reasons lost in the dim reaches of time the system
         calls "Eligible" as "Trusted" under the covers'''
-        return self._getCidrs('trusted')
+        return self._get_cidrs('trusted')
 
-    def getTrustedCidrs(self):
+    def get_trusted_cidrs(self):
         '''For reasons lost in the dim reaches of time the system
         calls "Eligible" as "Trusted" under the covers'''
-        return self._getCidrs('trusted')
+        return self._get_cidrs('trusted')
 
-    def getInternalCidrs(self):
-        return self._getCidrs('internal')
+    def get_internal_cidrs(self):
+        '''Return "internal" CIDRs for this zone'''
+        return self._get_cidrs('internal')
 
-    def _setCidrs(self, type, *cidrs, append=False):
-        if type not in ('known', 'trusted','internal'):
-            raise InvalidArgument('%s is not a valid type for _setCidrs')
+    def _set_cidrs(self, cidr_type, *cidrs, append=False):
+        if cidr_type not in ('known', 'trusted', 'internal'):
+            raise InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise NoServerException('Collector.setCidrs() requires a Zone with a server')
+            raise NoServerException(
+                'Collector.setCidrs() requires a Zone with a server')
 
         clist = []
         print(cidrs)
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
-        data = '{"addresses":[' + ','.join(clist) + ']}' 
-        params = { "append": str(append).lower() }
+        data = '{"addresses":[' + ','.join(clist) + ']}'
+        params = {"append": str(append).lower()}
 
-        r = self.server.post('zone/%d/cidr/%s' % (self.id, type), data=data, params=params)
-        if r.ok:
-            return r
-        
-        raise SpectreException(r.text)
+        results = self.server.post('zone/%d/cidr/%s' %
+                                   (self.id_num, cidr_type), data=data, params=params)
+        if results.ok:
+            return results
 
-    def setKnownCidrs(self, *cidrs, append=False):
-        return self._setCidrs('known', *cidrs, append=append)
+        raise SpectreException(results.text)
 
-    def setEligibleCidrs(self, *cidrs, append=False):
-        return self._setCidrs('trusted', *cidrs, append=append)
+    def set_known_cidrs(self, *cidrs, append=False):
+        '''Set "known" CIDRs for this zone.'''
+        return self._set_cidrs('known', *cidrs, append=append)
 
-    def setTrustedCidrs(self, *cidrs, append=False):
-        return self._setCidrs('trusted', *cidrs, append=append)
+    def set_eligible_cidrs(self, *cidrs, append=False):
+        '''Set "eligible" CIDRs for this zone.'''
+        return self._set_cidrs('trusted', *cidrs, append=append)
 
-    def setInternalCidrs(self, *cidrs, append=False):
-        return self._setCidrs('internal', *cidrs, append=append)
+    def set_trusted_cidrs(self, *cidrs, append=False):
+        '''Set "trusted" (AKA "eligible") CIDRs for this zone.'''
+        return self._set_cidrs('trusted', *cidrs, append=append)
+
+    def set_internal_cidrs(self, *cidrs, append=False):
+        '''Set "internal" CIDRs for this zone.'''
+        return self._set_cidrs('internal', *cidrs, append=append)
 
 
-    def getDeviceDetailsByIP(self, ip):
+    def get_device_details_by_ip(self, ip):
         '''Return the device(s) for a zone with an address of <ip>'''
         params = {
-            'filter.zone.id': self.id,
+            'filter.zone.id': self.id_num,
             'filter.address.ip' : ip,
             'detail.ScanType' : True,
             'detail.Attributes' : True,
@@ -101,6 +113,5 @@ class Zone:
         if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
             params['detail.Profile'] = True
             params['detail.ProfileDetails'] = True
-        
-        return self.server.get('zonedata/devices',params=params)
 
+        return self.server.get('zonedata/devices', params=params)

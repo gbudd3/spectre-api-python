@@ -5,15 +5,14 @@ a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 """
 import requests
 import urllib3
-import ipaddress
-from spectreapi.zone import Zone
-from spectreapi.collector import Collector
+#from spectreapi.zone import Zone
+#from spectreapi.collector import Collector
 
 
 class Server():
     """
     A Server is used to make API Calls to a Lumeta Spectre(r) server
-    It's not meant to be instantiated directly, use one of its 
+    It's not meant to be instantiated directly, use one of its
     subclasses (e.g. UsernameServer or APIKeyServer) based on how we're
     authenticating to the Spectre Command Center in question.
     """
@@ -30,7 +29,7 @@ class Server():
 
     def close(self):
         '''
-        It's not _required_ to close a Server, but if you don't, you might 
+        It's not _required_ to close a Server, but if you don't, you might
         hold tcp sockets open (the underlying requests and urllib3 modules
         hold them for keepalive purposes)
         '''
@@ -56,20 +55,20 @@ class Server():
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
 
-        r = self.session.post(self.url + api, **kargs)
-        if not r.ok:
-            raise APIException(r)
-        return r
+        result = self.session.post(self.url + api, **kargs)
+        if not result.ok:
+            raise APIException(result)
+        return result
 
     def raw_post(self, api, **kargs):
-            """
-            This method POSTs to the Spectre API but _doesn't_ set any headers.
-            This is so we can make things like file uploads work.
-            """
-            r = self.session.post(self.url + api, **kargs)
-            if not r.ok:
-                raise APIException(r)
-            return r
+        """
+        This method POSTs to the Spectre API but _doesn't_ set any headers.
+        This is so we can make things like file uploads work.
+        """
+        result = self.session.post(self.url + api, **kargs)
+        if not result.ok:
+            raise APIException(result)
+        return result
 
     def put(self, api, **kargs):
         '''Method PUTs through to the server'''
@@ -77,22 +76,22 @@ class Server():
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
 
-        r = self.session.put(self.url + api, **kargs)
-        if not r.ok:
-            raise APIException(r)
-        return r
+        result = self.session.put(self.url + api, **kargs)
+        if not result.ok:
+            raise APIException(result)
+        return result
 
 
     def delete(self, api, **kargs):
+        '''Method sends DELETEs through to server'''
 
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
 
-        '''Method DELETEs through to the server'''
-        r = self.session.delete(self.url + api, **kargs)
-        if not r.ok:
-            raise APIException(r)
-        return r
+        result = self.session.delete(self.url + api, **kargs)
+        if not result.ok:
+            raise APIException(result)
+        return result
 
 
     def getpage(self, api, params=None, page=0, headers=None):
@@ -132,54 +131,51 @@ class Server():
         """
         return Response(self, api, params)
 
-    def getZones(self):
+    def get_zones(self):
         '''Returns all the Zones configured on the server'''
         zones = []
-        r = self.get('zone')
-        for z in r:
-            zones.append(Zone(z['id'], z['name'], z['description'], server=self))
+        result = self.get('zone')
+        for zone in result:
+            zones.append(Zone(zone['id'], zone['name'], zone['description'], server=self))
 
         return zones
-    
-    def getZoneByName(self,name):
+
+    def get_zone_by_name(self, name):
         '''Returns the Zone configured on the server named <name> (if present)'''
-        zones = []
-        r = self.get('zone')
-        for z in r:
-            if z['name'] == name:
-                return Zone(z['id'], z['name'], z['description'], server=self)
+        results = self.get('zone')
+        for zone in results:
+            if zone['name'] == name:
+                return Zone(zone['id'], zone['name'], zone['description'], server=self)
 
         return None
 
 
-
-    def getCollectors(self):
+    def get_collectors(self):
         '''Returns the Collectors configured on the server'''
         collectors = []
-        r = self.get('zone/collector')
-        for c in r:
-            collectors.append(Collector(
-                c['id'],
-                c['uuid'],
-                c['name'],
-                Zone(c['zone']['id'], c['zone']['name']),
+        results = self.get('zone/collector')
+        for collector in results:
+            collectors.append(collector.Collector(
+                collector['id'],
+                collector['uuid'],
+                collector['name'],
+                Zone(collector['zone']['id'], collector['zone']['name']),
                 server=self,
             ))
         return collectors
 
-    def getCollectorByName(self,name):
+    def get_collector_by_name(self, name):
         '''Returns the Collector configured on the server named <name> (if present)'''
-        zones = []
-        r = self.get('zone/collector')
-        for c in r:
-            if c['name'] == name:
+        results = self.get('zone/collector')
+        for collector in results:
+            if collector['name'] == name:
                 return Collector(
-                c['id'],
-                c['uuid'],
-                c['name'],
-                Zone(c['zone']['id'], c['zone']['name']),
-                server=self,
-            )
+                    collector['id'],
+                    collector['uuid'],
+                    collector['name'],
+                    Zone(collector['zone']['id'], collector['zone']['name']),
+                    server=self,
+                )
 
         return None
 
@@ -187,7 +183,7 @@ class Server():
 class Response():
     """
     This class is used to present the results of a "GET" API call
-    It handles iterating through the results and fetching pages as 
+    It handles iterating through the results and fetching pages as
     needed from the server
     """
 
@@ -270,38 +266,43 @@ class APIKeyServer(Server):
         >>> r.json()['results'][0]['name']
         'i3'
         """
-        super().__init__(server, page_size=page_size,verify_cert=verify_cert)
+        super().__init__(server, page_size=page_size, verify_cert=verify_cert)
         self.session.headers['Authorization'] = "Bearer " + api_key
-        r = self.get("system/information")
-        self.version = r.result()['version']
+        results = self.get("system/information")
+        self.version = results.result()['version']
 
 class UsernameServer(Server):
     """
     This Server uses username and password authentication for the initial
     request, and then uses a session cookie from there out
     """
-    def __init__(self, server, username, password, page_size=500,verify_cert=False):
-        super().__init__(server, page_size=page_size,verify_cert=verify_cert)
-        a = requests.auth.HTTPBasicAuth(username, password)
+    def __init__(self, server, username, password, page_size=500, verify_cert=False):
+        super().__init__(server, page_size=page_size, verify_cert=verify_cert)
+        auth = requests.auth.HTTPBasicAuth(username, password)
         headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
-        r = requests.get(self.url + "system/information", headers=headers, verify=False, auth=a)
-        self.version = r.json()['results'][0]['version']
-        self.session.cookies = r.cookies
+        results = requests.get(self.url + "system/information", headers=headers, verify=False, auth=auth)
+        self.version = results.json()['results'][0]['version']
+        self.session.cookies = results.cookies
 
 
 class SpectreException(Exception):
+    '''General Base Spectre exception'''
     pass
 
 class NoServerException(SpectreException):
+    '''Specter exception for when we call a
+    method that needs a server but we don't have one'''
     pass
 
 class InvalidArgument(SpectreException):
+    '''Invalid argument'''
     pass
 
 class APIException(SpectreException):
-    def __init__(self,request):
+    '''We got an exception back from the Spectre API call'''
+    def __init__(self, request):
+        super().__init__()
         self.request = request
 
     def __str__(self):
         return self.request.text
-
