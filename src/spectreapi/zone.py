@@ -4,7 +4,9 @@ from distutils.version import LooseVersion
 import spectreapi
 
 class Zone:
-    '''Class abstracts out Spectre Zones'''
+    '''Class abstracts out Spectre Zones
+    Zones are basically a collection of Collectors.
+    They're useful for grouping sets of results together'''
     def __init__(self, id_num, name, description=None, server=None):
         self.id_num = id_num
         self.name = name
@@ -38,12 +40,14 @@ class Zone:
 
     def get_eligible_cidrs(self):
         '''For reasons lost in the dim reaches of time the system
-        calls "Eligible" as "Trusted" under the covers'''
+        calls "Eligible" "Trusted" under the covers.  In any case
+        it's the CIDRs that we're allowed to scan if we discover them'''
         return self._get_cidrs('trusted')
 
     def get_trusted_cidrs(self):
         '''For reasons lost in the dim reaches of time the system
-        calls "Eligible" as "Trusted" under the covers'''
+        calls "Eligible" as "Trusted" under the covers.  These are the
+        CIDRs that we're allowed to scan if we otherwise discover them.'''
         return self._get_cidrs('trusted')
 
     def get_internal_cidrs(self):
@@ -90,7 +94,7 @@ class Zone:
 
 
     def get_device_details_by_ip(self, ip):
-        '''Return the device(s) for a zone with an address of <ip>'''
+        '''Return the details for one ore more devices for a zone with an address of <ip>'''
         params = {
             'filter.zone.id': self.id_num,
             'filter.address.ip' : ip,

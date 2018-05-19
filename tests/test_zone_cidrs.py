@@ -1,4 +1,5 @@
 import ipaddress
+import spectreapi
 
 def test_set_cidrs(server):
     '''Set CIDRs and make sure they return ok'''
@@ -26,3 +27,27 @@ def test_get_cidrs(server):
 
     internal_cidrs = zone.get_internal_cidrs()
     assert ipaddress.ip_network('3.3.3.3/32') in internal_cidrs
+
+def test_get_bad_cidr_type(server):
+    '''Test what happens when we make a request for an invalid CIDR type'''
+    zone = server.get_zone_by_name('Twilight')
+    try:
+        zone._get_cidrs('foo')
+    except spectreapi.InvalidArgument:
+        assert True
+        return
+
+    assert False
+
+def test_get_cidrs_with_missing_server(server):
+    '''Test what happens when we make a request from a zone without a server'''
+    zone = server.get_zone_by_name('Twilight')
+    try:
+        zone.server = None
+        zone.get_known_cidrs()
+    except spectreapi.NoServerException:
+        assert True
+        return
+
+    assert False
+
