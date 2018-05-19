@@ -1,3 +1,4 @@
+'''Tests around zone CIDRs'''
 import ipaddress
 import spectreapi
 
@@ -39,7 +40,7 @@ def test_get_bad_cidr_type(server):
 
     assert False
 
-def test_get_cidrs_with_missing_server(server):
+def test_missing_server(server):
     '''Test what happens when we make a request from a zone without a server'''
     zone = server.get_zone_by_name('Twilight')
     try:
@@ -50,4 +51,3 @@ def test_get_cidrs_with_missing_server(server):
         return
 
     assert False
-

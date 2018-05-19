@@ -49,7 +49,7 @@ def test_rewind():
         count1 += 1
 
     count2 = 0
-    for device in results:
+    for _ in results:
         count2 += 1
 
     server.close()

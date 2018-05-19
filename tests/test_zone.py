@@ -1,11 +1,7 @@
-import pytest
-import spectreapi
-
-@pytest.fixture()
-def server():
-    return spectreapi.UsernameServer('6hour', 'admin','admin')
+'''Double check that get_zones works'''
 
 def test_getzones(server):
+    '''Double check that get_zones works'''
     zones = server.get_zones()
     zone = zones[0]
     assert zone.name is not None, "Zones should have names"
