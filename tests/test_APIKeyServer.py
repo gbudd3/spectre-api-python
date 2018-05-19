@@ -1,54 +1,56 @@
+'''Tests around API Key Server access'''
 import spectreapi
 
 def test_createserver():
-    s = spectreapi.APIKeyServer(
+    '''Create server'''
+    server = spectreapi.APIKeyServer(
         "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
-    r = s.getpage("system/information")
-    v = r.json()['results'][0]
+    results = server.getpage("system/information")
+    server_results = results.json()['results'][0]
 
-    assert r.json()['status'] == 'SUCCESS'
-    assert v['name'] == 'i3'
-            
+    assert results.json()['status'] == 'SUCCESS'
+    assert server_results['name'] == 'i3'
+
 def test_pagesizes():
-    s = spectreapi.APIKeyServer(
+    '''Test server access with different page sizes'''
+    server = spectreapi.APIKeyServer(
         "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
-    r = s.getpage("zonedata/devices", params={"filter.zone.id": "4"})
-    correct_count = r.json()['total']
-    s.close()
+    results = server.getpage("zonedata/devices", params={"filter.zone.id": "4"})
+    correct_count = results.json()['total']
+    server.close()
 
     for size in (1, 2, 5, 7, 500):
-        s = spectreapi.APIKeyServer(
+        server = spectreapi.APIKeyServer(
             "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
             "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
             "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=size)
 
-        r = s.get("zonedata/devices", params={"filter.zone.id": "4"})
+        results = server.get("zonedata/devices", params={"filter.zone.id": "4"})
 
         count = 0
-        for d in r:
+        for _ in results:
             count += 1
-        s.close()
+        server.close()
         assert correct_count == count
 
 def test_rewind():
-    s = spectreapi.APIKeyServer(
+    '''Test the ability to rewind the results and re-iterate over them'''
+    server = spectreapi.APIKeyServer(
         "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
-    r = s.get("zonedata/devices", params={"filter.zone.id": "4"})
+    results = server.get("zonedata/devices", params={"filter.zone.id": "4"})
     count1 = 0
-    for d in r:
+    for _ in results:
         count1 += 1
 
     count2 = 0
-    for d in r:
+    for device in results:
         count2 += 1
 
-    s.close()
+    server.close()
     assert count1 == count2
-
-
