@@ -35,7 +35,9 @@ class Zone:
         return cidrs
 
     def get_known_cidrs(self):
-        '''Return "known" CIDRs for this zone'''
+        '''Return "known" CIDRs for this zone
+        "known" CIDRs are meant to be CIDRs that you know about but that you
+        don't own or control.'''
         return self._get_cidrs('known')
 
     def get_eligible_cidrs(self):
@@ -51,7 +53,9 @@ class Zone:
         return self._get_cidrs('trusted')
 
     def get_internal_cidrs(self):
-        '''Return "internal" CIDRs for this zone'''
+        '''Return "internal" CIDRs for this zone
+        "internal" CIDRs are the ones you own or control that are part of
+        your network'''
         return self._get_cidrs('internal')
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False):
@@ -77,11 +81,14 @@ class Zone:
         raise spectreapi.SpectreException(results.text)
 
     def set_known_cidrs(self, *cidrs, append=False):
-        '''Set "known" CIDRs for this zone.'''
+        '''Set "known" CIDRs for this zone.
+        "known" CIDRs are meant to be CIDRs that you know about but that you
+        don't own or control.'''
         return self._set_cidrs('known', *cidrs, append=append)
 
     def set_eligible_cidrs(self, *cidrs, append=False):
-        '''Set "eligible" CIDRs for this zone.'''
+        '''Set "eligible" CIDRs for this zone.
+        These are the CIDRs we're allowed to scan if we learn about them'''
         return self._set_cidrs('trusted', *cidrs, append=append)
 
     def set_trusted_cidrs(self, *cidrs, append=False):
@@ -89,12 +96,14 @@ class Zone:
         return self._set_cidrs('trusted', *cidrs, append=append)
 
     def set_internal_cidrs(self, *cidrs, append=False):
-        '''Set "internal" CIDRs for this zone.'''
+        '''Set "internal" CIDRs for this zone.
+        "internal" CIDRs are the ones you own or control that are a part of your network'''
         return self._set_cidrs('internal', *cidrs, append=append)
 
 
     def get_device_details_by_ip(self, ip):
-        '''Return the details for one ore more devices for a zone with an address of <ip>'''
+        '''Return the details for one ore more devices for a zone with an address of <ip>
+        This method returns all available details (minus the profile data prior to Spectre 3.3.1)'''
         params = {
             'filter.zone.id': self.id_num,
             'filter.address.ip' : ip,
