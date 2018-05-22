@@ -20,7 +20,7 @@ class Zone:
         return 'id=%d, name=%s, description=%s)' % (self.id_num, self.name, self.description)
 
     def _get_cidrs(self, cidr_type):
-        if cidr_type not in ('known', 'trusted', 'internal'):
+        if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
             raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
 
         if self.server is None:
@@ -58,8 +58,15 @@ class Zone:
         your network'''
         return self._get_cidrs('internal')
 
+    def get_avoid_cidrs(self):
+        '''Return "avoid" CIDRs for this zone
+        "avoid" CIDRs are the ones we won't actively scan
+        '''
+        return self._get_cidrs('avoid')
+
+
     def _set_cidrs(self, cidr_type, *cidrs, append=False):
-        if cidr_type not in ('known', 'trusted', 'internal'):
+        if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
             raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
@@ -99,6 +106,12 @@ class Zone:
         '''Set "internal" CIDRs for this zone.
         "internal" CIDRs are the ones you own or control that are a part of your network'''
         return self._set_cidrs('internal', *cidrs, append=append)
+
+    def set_avoid_cidrs(self, *cidrs, append=False):
+        '''Set "avoid" CIDRs for this zone.
+        "avoid" CIDRs are the ones we won't actively scan'''
+        return self._set_cidrs('avoid', *cidrs, append=append)
+
 
 
     def get_device_details_by_ip(self, ip):
