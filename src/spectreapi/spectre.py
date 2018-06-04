@@ -21,10 +21,21 @@ class Server():
         self.session.verify = False
         self.page_size = page_size
         self.url = "https://" + server + "/api/rest/"
-        self.host = server
+        self._host = server
+        self._version = None
         self.session.timeout = 1
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    @property
+    def host(self):
+        '''Returns the host name for this server'''
+        return self._host
+
+    @property
+    def version(self):
+        '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
+        return self._version
 
     def close(self):
         '''
@@ -62,7 +73,19 @@ class Server():
     def raw_post(self, api, **kargs):
         """
         This method POSTs to the Spectre API but _doesn't_ set any headers.
-        This is so we can make things like file uploads work.
+        This is so we can make things like file uploads work (because they seem to 
+        require XML for reasons as yet mysterious.  For example, this is currently the only
+        way to setup the SNMP server:
+            data='''<set_snmpd_request>
+                <SNMPDaemonConfig>
+                    <readOnlyCommunity>
+                        <community>public</community>
+                    </readOnlyCommunity>
+                </SNMPDaemonConfig>
+            </set_snmpd_request>
+            '''
+
+        server.raw_post('management/snmpd',data=data,headers={'Content-Type':'application/xml'})
         """
         result = self.session.post(self.url + api, **kargs)
         if not result.ok:
@@ -234,9 +257,10 @@ class Response():
                 self.rewind()
                 raise StopIteration  # This could happen if the underlying query shrinks under us
 
+    @property
     def result(self):
         """Return result 0 (the only result for singletons"""
-        return self.results.json()['results'][0]
+        return self.values()[0]
 
     def values(self):
         """Return the values from the API call"""
@@ -268,7 +292,7 @@ class APIKeyServer(Server):
         super().__init__(server, page_size=page_size, verify_cert=verify_cert)
         self.session.headers['Authorization'] = "Bearer " + api_key
         results = self.get("system/information")
-        self.version = results.result()['version']
+        self._version = results.result['version']
 
 class UsernameServer(Server):
     """
@@ -280,7 +304,7 @@ class UsernameServer(Server):
         auth = requests.auth.HTTPBasicAuth(username, password)
         headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
         results = requests.get(self.url + "system/information", headers=headers, verify=False, auth=auth)
-        self.version = results.json()['results'][0]['version']
+        self._version = results.json()['results'][0]['version']
         self.session.cookies = results.cookies
 
 
