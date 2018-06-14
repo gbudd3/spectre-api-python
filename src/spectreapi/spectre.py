@@ -21,10 +21,15 @@ class Server():
         self.session.verify = False
         self.page_size = page_size
         self.url = "https://" + server + "/api/rest/"
-        self.host = server
+        self._host = server
         self.session.timeout = 1
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    @property
+    def host(self):
+        '''Returns the server name (or IP) specified in the constructor'''
+        return self._host
 
     def close(self):
         '''
@@ -236,6 +241,10 @@ class Response():
 
     def result(self):
         """Return result 0 (the only result for singletons"""
+        return self.results.json()['results'][0]
+
+    def value(self):
+        """Return value 0 (the only value for singletons (replaces result())"""
         return self.results.json()['results'][0]
 
     def values(self):
