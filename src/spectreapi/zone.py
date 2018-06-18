@@ -134,6 +134,7 @@ class Zone:
             'detail.Interfaces' : True,
             'detail.Vlans' : True,
             'detail.Collector' : True,
+            'detail.SnmpAlias' : True,
         }
 
         if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
