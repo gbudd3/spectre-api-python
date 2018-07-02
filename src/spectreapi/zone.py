@@ -101,7 +101,7 @@ class Zone:
     def set_eligible_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "eligible" CIDRs for this zone.
         These are the CIDRs we're allowed to scan if we learn about them'''
-        return self._set_cidrs('trusted', *cidrs, append=append, , chunk_size=chunk_size)
+        return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_trusted_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "trusted" (AKA "eligible") CIDRs for this zone.'''
