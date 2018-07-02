@@ -201,9 +201,6 @@ class Server():
 
         return None
 
-<<<<<<< HEAD:src/spectreapi/server.py
-=======
-
 class Response():
     """
     This class is used to present the results of a "GET" API call
@@ -272,8 +269,6 @@ class Response():
         """Return the values from the API call"""
         return self.results.json()['results']
 
-
->>>>>>> 12338ebb979d85abf77e7d00242cc24bb151fde2:src/spectreapi/spectre.py
 class APIKeyServer(Server):
     """
     An APIKeyServer is a Server that uses authentication via API key.

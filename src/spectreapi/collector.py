@@ -1,6 +1,7 @@
 '''This module carries the code needed to deal with Spectre collectors
 '''
 import ipaddress
+import math
 import spectreapi
 
 class Collector:
@@ -36,7 +37,7 @@ class Collector:
 
         return cidrs
 
-    def _set_cidrs(self, cidr_type, *cidrs, append=False):
+    def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
             raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
@@ -46,17 +47,19 @@ class Collector:
         clist = []
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
-        data = '{"addresses":[' + ','.join(clist) + ']}'
-        params = {"append": str(append).lower()}
 
-        results = self.server.post('zone/collector/%d/cidr/%s' %
-                                   (self.id_num, cidr_type), data=data, params=params)
+        for i in range( math.ceil( len(clist) / chunk_size)):
+            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+            params = {"append": str(append).lower()}
+            results = self.server.post('zone/collector/%d/cidr/%s' %
+                                    (self.id_num, cidr_type), data=data, params=params)
+            append = True # after the first chunk, append regardless
         if results.ok:
             return results
 
         raise spectreapi.SpectreException(results.text)
 
-    def set_target_cidrs(self, *cidrs, append=False):
+    def set_target_cidrs(self, *cidrs, append=False, chunk_size=5000):
         ''' Sets Targets for a given Collector.
         By default it will overwrite all targets for this collector, set append=True
         to add CIDRs to the target list.
@@ -74,13 +77,13 @@ class Collector:
         '''
         return self._set_cidrs('target', *cidrs, append=append)
 
-    def set_avoid_cidrs(self, *cidrs, append=False):
+    def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "Avoid" CIDRs, Spectre shouldn't emit packets
         at these addresses (though we could trace through them
         via path as we're not targeting the hops themselves)'''
         return self._set_cidrs('avoid', *cidrs, append=append)
 
-    def set_stop_cidrs(self, *cidrs, append=False):
+    def set_stop_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "Stop" CIDRs, if Spectre sees a hop in one of
         these CIDRs it should stop tracing that path'''
         return self._set_cidrs('stop', *cidrs, append=append)
