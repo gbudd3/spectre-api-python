@@ -46,7 +46,11 @@ class Collector:
 
         clist = []
         for cidr in cidrs:
-            clist.append('{"address":"%s"}' % str(cidr))
+            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+                for c2 in cidr:
+                    clist.append('{"address":"%s"}' % str(c2))
+            else:
+                 clist.append('{"address":"%s"}' % str(cidr))
 
         for i in range( math.ceil( len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
@@ -54,10 +58,12 @@ class Collector:
             results = self.server.post('zone/collector/%d/cidr/%s' %
                                     (self.id_num, cidr_type), data=data, params=params)
             append = True # after the first chunk, append regardless
-        if results.ok:
-            return results
 
-        raise spectreapi.SpectreException(results.text)
+            if not results.ok:
+                raise spectreapi.SpectreException(results.text)
+
+        return results
+
 
     def set_target_cidrs(self, *cidrs, append=False, chunk_size=5000):
         ''' Sets Targets for a given Collector.
