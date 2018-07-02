@@ -1,6 +1,7 @@
 '''Module to handle Spectre Zones'''
 import ipaddress
 from distutils.version import LooseVersion
+import math
 import spectreapi
 
 class Zone:
@@ -65,7 +66,7 @@ class Zone:
         return self._get_cidrs('avoid')
 
 
-    def _set_cidrs(self, cidr_type, *cidrs, append=False):
+    def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
             raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
@@ -77,17 +78,21 @@ class Zone:
         print(cidrs)
         for cidr in cidrs:
             clist.append('{"address":"%s"}' % str(cidr))
-        data = '{"addresses":[' + ','.join(clist) + ']}'
-        params = {"append": str(append).lower()}
+        for i in range( math.ceil( len(clist) / chunk_size)):
 
-        results = self.server.post('zone/%d/cidr/%s' %
-                                   (self.id_num, cidr_type), data=data, params=params)
+            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+            params = {"append": str(append).lower()}
+
+            results = self.server.post('zone/%d/cidr/%s' %
+                                    (self.id_num, cidr_type), data=data, params=params)
+            append = True # after the first chunk, append regardless
+
         if results.ok:
             return results
 
         raise spectreapi.SpectreException(results.text)
 
-    def set_known_cidrs(self, *cidrs, append=False):
+    def set_known_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "known" CIDRs for this zone.
         "known" CIDRs are meant to be CIDRs that you know about but that you
         don't own or control.'''
@@ -96,18 +101,18 @@ class Zone:
     def set_eligible_cidrs(self, *cidrs, append=False):
         '''Set "eligible" CIDRs for this zone.
         These are the CIDRs we're allowed to scan if we learn about them'''
-        return self._set_cidrs('trusted', *cidrs, append=append)
+        return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=5000)
 
-    def set_trusted_cidrs(self, *cidrs, append=False):
+    def set_trusted_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "trusted" (AKA "eligible") CIDRs for this zone.'''
         return self._set_cidrs('trusted', *cidrs, append=append)
 
-    def set_internal_cidrs(self, *cidrs, append=False):
+    def set_internal_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "internal" CIDRs for this zone.
         "internal" CIDRs are the ones you own or control that are a part of your network'''
         return self._set_cidrs('internal', *cidrs, append=append)
 
-    def set_avoid_cidrs(self, *cidrs, append=False):
+    def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "avoid" CIDRs for this zone.
         "avoid" CIDRs are the ones we won't actively scan'''
         return self._set_cidrs('avoid', *cidrs, append=append)
