@@ -54,10 +54,12 @@ class Collector:
             results = self.server.post('zone/collector/%d/cidr/%s' %
                                     (self.id_num, cidr_type), data=data, params=params)
             append = True # after the first chunk, append regardless
-        if results.ok:
-            return results
 
-        raise spectreapi.SpectreException(results.text)
+            if not results.ok:
+                raise spectreapi.SpectreException(results.text)
+
+        return results
+
 
     def set_target_cidrs(self, *cidrs, append=False, chunk_size=5000):
         ''' Sets Targets for a given Collector.

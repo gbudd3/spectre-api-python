@@ -87,10 +87,10 @@ class Zone:
                                     (self.id_num, cidr_type), data=data, params=params)
             append = True # after the first chunk, append regardless
 
-        if results.ok:
-            return results
+            if not results.ok:
+                raise spectreapi.SpectreException(results.text)
 
-        raise spectreapi.SpectreException(results.text)
+        return results
 
     def set_known_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "known" CIDRs for this zone.

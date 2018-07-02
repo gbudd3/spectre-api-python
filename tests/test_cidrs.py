@@ -38,3 +38,9 @@ def test_invalid_cidr_type(server):
         assert True, "_get_cidrs('foo') raised an InvalidArgument"
         return
     assert False, "_get_cidrs('foo') should have raised an InvalidArgument"
+
+def test_list_cidr(server):
+    collector = server.get_collector_by_name('RodSerling')
+    list = ['192.168.1.1/32', ipaddress.ip_network('192.168.1.2')]
+    results = collector.set_avoid_cidrs(list)
+    assert results.ok

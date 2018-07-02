@@ -51,3 +51,9 @@ def test_missing_server(server):
         return
 
     assert False
+
+def test_zone_list_cidr(server):
+    zone = zone.get_zone_by_name('Twilight')
+    list = ['192.168.1.1/32', ipaddress.ip_network('192.168.1.2')]
+    results = set.set_avoid_cidrs(list)
+    assert results.ok
