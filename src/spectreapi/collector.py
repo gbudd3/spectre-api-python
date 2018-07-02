@@ -75,18 +75,18 @@ class Collector:
         [IPv4Network(...
         >>>
         '''
-        return self._set_cidrs('target', *cidrs, append=append)
+        return self._set_cidrs('target', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "Avoid" CIDRs, Spectre shouldn't emit packets
         at these addresses (though we could trace through them
         via path as we're not targeting the hops themselves)'''
-        return self._set_cidrs('avoid', *cidrs, append=append)
+        return self._set_cidrs('avoid', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_stop_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "Stop" CIDRs, if Spectre sees a hop in one of
         these CIDRs it should stop tracing that path'''
-        return self._set_cidrs('stop', *cidrs, append=append)
+        return self._set_cidrs('stop', *cidrs, append=append, chunk_size=chunk_size)
 
     def get_target_cidrs(self):
         '''
