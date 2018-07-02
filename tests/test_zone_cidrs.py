@@ -54,6 +54,9 @@ def test_missing_server(server):
 
 def test_zone_list_cidr(server):
     zone = server.get_zone_by_name('Twilight')
-    list = ['192.168.1.1/32', ipaddress.ip_network('192.168.1.2')]
+    list = ['192.168.1.100/32', ipaddress.ip_network('192.168.1.101')]
     results = zone.set_avoid_cidrs(list)
     assert results.ok
+    avoided = zone.get_avoid_cidrs()
+    assert ipaddress.ip_network('192.168.1.100')  in avoided, "Check that string was added"
+    assert ipaddress.ip_network('192.168.1.101')  in avoided, "Check that list of string was added"
