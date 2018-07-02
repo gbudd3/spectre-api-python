@@ -77,7 +77,12 @@ class Zone:
         clist = []
         print(cidrs)
         for cidr in cidrs:
-            clist.append('{"address":"%s"}' % str(cidr))
+            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+                for c2 in cidr:
+                    clist.append('{"address":"%s"}' % str(c2))
+            else:
+                clist.append('{"address":"%s"}' % str(cidr))
+
         for i in range( math.ceil( len(clist) / chunk_size)):
 
             data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
