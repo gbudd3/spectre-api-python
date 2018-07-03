@@ -44,3 +44,29 @@ def test_list_cidr(server):
     list = ['192.168.1.1/32', ipaddress.ip_network('192.168.1.2')]
     results = collector.set_avoid_cidrs(list)
     assert results.ok
+
+def test_delete_cidr(server):
+    collector = server.get_collector_by_name('RodSerling')
+    add_list = ['192.168.1.3/32', ipaddress.ip_network('192.168.1.4'), '192.168.1.5/32']
+    results = collector.set_avoid_cidrs(add_list)
+    assert results.ok
+    delete_list = ['192.168.1.3/32', '192.168.1.5/32']
+    results = collector.delete_avoid_cidrs(delete_list)
+    assert results.ok
+    avoid_list = collector.get_avoid_cidrs()
+    assert ipaddress.ip_network('192.168.1.3') not in avoid_list, "CIDR should not be in RodSerling avoids"
+    assert ipaddress.ip_network('192.168.1.5') not in avoid_list, "CIDR should not be in RodSerling avoids"
+    assert ipaddress.ip_network('192.168.1.4') in avoid_list, "CIDR should be in RodSerling avoids"
+
+def test_delete_zone_cidr(server):
+    zone = server.get_zone_by_name('Twilight')
+    add_list = ['192.168.1.3/32', ipaddress.ip_network('192.168.1.4'), '192.168.1.5/32']
+    results = zone.set_avoid_cidrs(add_list)
+    assert results.ok
+    delete_list = ['192.168.1.3/32', '192.168.1.5/32']
+    results = zone.delete_avoid_cidrs(delete_list)
+    assert results.ok
+    avoid_list = zone.get_avoid_cidrs()
+    assert ipaddress.ip_network('192.168.1.3') not in avoid_list, "CIDR should not be in RodSerling avoids"
+    assert ipaddress.ip_network('192.168.1.5') not in avoid_list, "CIDR should not be in RodSerling avoids"
+    assert ipaddress.ip_network('192.168.1.4') in avoid_list, "CIDR should be in RodSerling avoids"
