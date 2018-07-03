@@ -65,7 +65,6 @@ class Zone:
         '''
         return self._get_cidrs('avoid')
 
-
     def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
             raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
@@ -97,6 +96,36 @@ class Zone:
 
         return results
 
+
+    def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
+        if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
+            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
+
+        if self.server is None:
+            raise spectreapi.NoServerException(
+                'Collector.setCidrs() requires a Zone with a server')
+
+        clist = []
+        print(cidrs)
+        for cidr in cidrs:
+            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+                for c2 in cidr:
+                    clist.append('{"address":"%s"}' % str(c2))
+            else:
+                clist.append('{"address":"%s"}' % str(cidr))
+
+        for i in range( math.ceil( len(clist) / chunk_size)):
+
+            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+
+            results = self.server.delete('zone/%d/cidr/%s' %
+                                    (self.id_num, cidr_type), data=data)
+
+            if not results.ok:
+                raise spectreapi.SpectreException(results.text)
+
+        return results
+
     def set_known_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "known" CIDRs for this zone.
         "known" CIDRs are meant to be CIDRs that you know about but that you
@@ -120,9 +149,22 @@ class Zone:
     def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         '''Set "avoid" CIDRs for this zone.
         "avoid" CIDRs are the ones we won't actively scan'''
-        return self._set_cidrs('avoid', *cidrs, append=append, chunk_size=chunk_size)
+        return self._set_cidrs('avoid', *cidrs, chunk_size=chunk_size)
 
+    def delete_eligible_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('trusted', *cidrs, chunk_size=chunk_size)
 
+    def delete_trusted_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('trusted', *cidrs, chunk_size=chunk_size)
+
+    def delete_internal_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('internal', *cidrs, chunk_size=chunk_size)
+
+    def delete_avoid_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('avoid', *cidrs, chunk_size=chunk_size)
+
+    def delete_known_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('known', *cidrs, chunk_size=chunk_size)
 
     def get_device_details_by_ip(self, ip):
         '''Return the details for one ore more devices for a zone with an address of <ip>

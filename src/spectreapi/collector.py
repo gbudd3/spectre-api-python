@@ -3,6 +3,9 @@
 import ipaddress
 import math
 import spectreapi
+from typing import List, Union
+
+IPNetwork = Union[ipaddress.IPv4Network,ipaddress.IPv6Network]
 
 class Collector:
     '''This class encapsulates operations on Spectre collectors.
@@ -23,9 +26,9 @@ class Collector:
         return('id=%d, uuid=%s, name=%s, zone=%s)' %
                (self.id_num, self.uuid, self.name, self.zone.__str__()))
 
-    def _get_cidrs(self, cidr_type):
+    def _get_cidrs(self, cidr_type) -> List[IPNetwork]:
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs' % cidr_type)
 
         if self.server is None:
             raise spectreapi.NoServerException('Collector.getCidrs() needs a Collector with server')
@@ -39,14 +42,14 @@ class Collector:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.invalidargument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.setCidrs() needs a Collector with server')
+            raise spectreapi.noserverexception('collector.setcidrs() needs a collector with server')
 
         clist = []
         for cidr in cidrs:
-            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+            if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
                 for c2 in cidr:
                     clist.append('{"address":"%s"}' % str(c2))
             else:
@@ -60,10 +63,44 @@ class Collector:
             append = True # after the first chunk, append regardless
 
             if not results.ok:
-                raise spectreapi.SpectreException(results.text)
+                raise spectreapi.spectreexception(results.text)
 
         return results
 
+    def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
+        if cidr_type not in ('target', 'avoid', 'stop'):
+            raise spectreapi.invalidargument('%s is not a valid type for _delete_cidrs')
+
+        if self.server is None:
+            raise spectreapi.noserverexception('collector._delete_cidrs() needs a collector with server')
+
+        clist = []
+        for cidr in cidrs:
+            if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
+                for c2 in cidr:
+                    clist.append('{"address":"%s"}' % str(c2))
+            else:
+                 clist.append('{"address":"%s"}' % str(cidr))
+
+        for i in range( math.ceil( len(clist) / chunk_size)):
+            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+            results = self.server.delete('zone/collector/%d/cidr/%s' %
+                                    (self.id_num, cidr_type), data=data)
+            append = True # after the first chunk, append regardless
+
+            if not results.ok:
+                raise spectreapi.spectreexception(results.text)
+
+        return results
+
+    def delete_avoid_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('avoid', *cidrs, chunk_size=chunk_size)
+
+    def delete_target_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('target', *cidrs, chunk_size=chunk_size)
+
+    def delete_stop_cidrs(self, *cidrs, chunk_size=5000):
+        return self._delete_cidrs('stop', *cidrs, chunk_size=chunk_size)
 
     def set_target_cidrs(self, *cidrs, append=False, chunk_size=5000):
         ''' Sets Targets for a given Collector.
@@ -94,7 +131,7 @@ class Collector:
         these CIDRs it should stop tracing that path'''
         return self._set_cidrs('stop', *cidrs, append=append, chunk_size=chunk_size)
 
-    def get_target_cidrs(self):
+    def get_target_cidrs(self) -> List[IPNetwork]:
         '''
         Gets the "Target" CIDRs for this collector
 
@@ -109,10 +146,10 @@ class Collector:
         '''
         return self._get_cidrs('target')
 
-    def get_avoid_cidrs(self):
+    def get_avoid_cidrs(self) -> List[IPNetwork]:
         '''Return the list of "Avoid" CIDRs for this collector'''
         return self._get_cidrs('avoid')
 
-    def get_stop_cidrs(self):
+    def get_stop_cidrs(self) -> List[IPNetwork]:
         '''Return the list of "Stop" CIDRs for this collector'''
         return self._get_cidrs('stop')
