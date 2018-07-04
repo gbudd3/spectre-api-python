@@ -8,7 +8,7 @@ import urllib3
 import spectreapi
 
 
-class Response():
+class Response:
     """
     This class is used to present the results of a "GET" API call
     It handles iterating through the results and fetching pages as

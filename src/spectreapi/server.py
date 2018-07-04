@@ -6,9 +6,10 @@ a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 import requests
 import urllib3
 import spectreapi
+from typing import Optional, List, Iterable
 
 
-class Server():
+class Server:
     """
     A Server is used to make API Calls to a Lumeta Spectre(r) server
     It's not meant to be instantiated directly, use one of its
@@ -28,12 +29,12 @@ class Server():
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     @property
-    def host(self):
+    def host(self) -> str:
         '''Returns the server name (or IP) specified in the constructor'''
         return self._host
 
     @property
-    def version(self):
+    def version(self) -> str:
         '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
         return self._version
 
@@ -45,7 +46,7 @@ class Server():
         '''
         self.session.close()
 
-    def post(self, api, **kargs):
+    def post(self, api, **kargs) -> requests.Response:
         """
         This method POSTs to the Spectre API
         >>> import spectreapi
@@ -70,7 +71,7 @@ class Server():
             raise APIException(result)
         return result
 
-    def raw_post(self, api, **kargs):
+    def raw_post(self, api, **kargs) -> requests.Response:
         """
         This method POSTs to the Spectre API but _doesn't_ set any headers.
         This is so we can make things like file uploads work (because they seem to 
@@ -104,7 +105,7 @@ class Server():
         return result
 
 
-    def delete(self, api, **kargs):
+    def delete(self, api, **kargs) -> requests.Response:
         '''Method sends DELETEs through to server'''
 
         if 'headers' not in kargs:
@@ -116,7 +117,7 @@ class Server():
         return result
 
 
-    def getpage(self, api, params=None, page=0, headers=None):
+    def getpage(self, api, params=None, page=0, headers=None) -> requests.Response:
         """
         This private method is in place to handle the actual
         fetching of GET API calls
@@ -135,7 +136,7 @@ class Server():
             raise APIException(results)
         return results
 
-    def get(self, api, params=None):
+    def get(self, api, params=None) -> Iterable['spectreapi.Response']:
         """
         Use this method to GET results from an API call and produce
         an iterable response
@@ -153,7 +154,7 @@ class Server():
         """
         return spectreapi.Response(self, api, params)
 
-    def get_zones(self):
+    def get_zones(self) -> List['spectreapi.Zone']:
         '''Returns all the Zones configured on the server'''
         zones = []
         result = self.get('zone')
@@ -162,7 +163,7 @@ class Server():
 
         return zones
 
-    def get_zone_by_name(self, name):
+    def get_zone_by_name(self, name) -> Optional['spectreapi.Zone']:
         '''Returns the Zone configured on the server named <name> (if present)'''
         results = self.get('zone')
         for zone in results:
@@ -172,7 +173,7 @@ class Server():
         return None
 
 
-    def get_collectors(self):
+    def get_collectors(self) -> List['spectreapi.Collector']:
         '''Returns the Collectors configured on the server'''
         collectors = []
         results = self.get('zone/collector')
@@ -186,7 +187,7 @@ class Server():
             ))
         return collectors
 
-    def get_collector_by_name(self, name):
+    def get_collector_by_name(self, name) -> Optional['spectreapi.Collector']:
         '''Returns the Collector configured on the server named <name> (if present)'''
         results = self.get('zone/collector')
         for collector in results:
