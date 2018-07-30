@@ -326,7 +326,7 @@ class Query:
         self.params['filter.' + name] = value
         return self
 
-    def details(self, name):
+    def detail(self, name):
         self.params['detail.' + name] = True
         return self
 
