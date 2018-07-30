@@ -166,6 +166,9 @@ class Zone:
     def delete_known_cidrs(self, *cidrs, chunk_size=5000):
         return self._delete_cidrs('known', *cidrs, chunk_size=chunk_size)
 
+    def query(self, api):
+        return self.server.query(api).filter('zone.id', self.id_num)
+
     def get_device_details_by_ip(self, ip):
         '''Return the details for one ore more devices for a zone with an address of <ip>
         This method returns all available details (minus the profile data prior to Spectre 3.3.1)'''

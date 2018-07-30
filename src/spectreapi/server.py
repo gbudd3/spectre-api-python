@@ -154,6 +154,9 @@ class Server:
         """
         return spectreapi.Response(self, api, params)
 
+    def query(self, api="zonedata/devices"):
+        return Query(self, api)
+
     def get_zones(self) -> List['spectreapi.Zone']:
         '''Returns all the Zones configured on the server'''
         zones = []
@@ -309,6 +312,23 @@ class UsernameServer(Server):
         results = requests.get(self.url + "system/information", headers=headers, verify=False, auth=auth)
         self._version = results.json()['results'][0]['version']
         self.session.cookies = results.cookies
+
+class Query:
+    def __init__(self, server, api):
+        self.server = server
+        self.api = api
+        self.params = {}
+
+    def run(self):
+        return self.server.get(self.api, self.params)
+
+    def filter(self, name, value):
+        self.params['filter.' + name] = value
+        return self
+
+    def details(self, name):
+        self.params['detail.' + name] = True
+        return self
 
 
 class SpectreException(Exception):
