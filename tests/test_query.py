@@ -6,3 +6,8 @@ def test_query(server):
     for device in devices:
         assert device['id'] > 0, "All devices should have an id"
 
+def test_zone_query(server):
+    z = server.get_zone_by_name('Twilight')
+    for device in z.query().run():
+        assert device['id'] > 0, "All devices should have an id"
+
