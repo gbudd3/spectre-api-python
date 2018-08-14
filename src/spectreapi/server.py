@@ -155,6 +155,13 @@ class Server:
         return spectreapi.Response(self, api, params)
 
     def query(self, api="zonedata/devices"):
+        """
+        >>> import spectreapi
+        >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+        >>> q=s.query().filter('zone.id',2).detail('Attributes')
+        >>> for d in q.run():
+        ...     print(d)
+        """
         return Query(self, api)
 
     def get_zones(self) -> List['spectreapi.Zone']:
@@ -314,19 +321,39 @@ class UsernameServer(Server):
         self.session.cookies = results.cookies
 
 class Query:
-    def __init__(self, server, api):
+    """
+    Class to store the state around a GET request from a server
+    >>> import spectreapi
+    >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+    >>> q=s.query().filter('zone.id',2).detail('Attributes')
+    >>> for d in q.run():
+    ...     print(d)
+    """
+    def __init__(self, server, api) -> 'spectreapi.Query':
+        """
+        Setup a query for a server with api call <api>
+        """
         self.server = server
         self.api = api
         self.params = {}
 
-    def run(self):
+    def run(self) -> Iterable['spectreapi.Response']:
+        """
+        Go ahead and execute the query, return the results
+        """
         return self.server.get(self.api, self.params)
 
-    def filter(self, name, value):
+    def filter(self, name, value) -> 'spectreapi.Query':
+        """
+        Add a filter to the query
+        """
         self.params['filter.' + name] = value
         return self
 
-    def detail(self, name):
+    def detail(self, name) -> 'spectreapi.Query':
+        """
+        Add a detail to the query
+        """
         self.params['detail.' + name] = True
         return self
 

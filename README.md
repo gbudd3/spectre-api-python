@@ -30,6 +30,24 @@ For example:
 172.18.1.180
 >>>
 ```
+Another, slightly cleaner way to do this would be to use the query methods
+```python
+>>> import spectreapi
+>>> z = spectreapi.UsernameServer('cc','username','password').get_zone_by_name('Zone1')
+>>> q=z.query().detail('Attributes')
+>>> for d in q.run():
+...     if d['ip'] is not None:
+...             print(d['ip'])
+...
+10.2.1.1
+10.201.0.1
+10.201.0.7
+10.202.0.1
+10.202.0.2
+172.18.1.180
+>>>
+```
+
 
 ## Servers
 A **Server** is the base class that has most of the functionality
