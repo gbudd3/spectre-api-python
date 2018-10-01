@@ -47,12 +47,25 @@ def device_snmpDiscovery(ip, i):
   "snmpAliases" : [ "alias" + str(i%5), "public" ],
 }
 
+def device_dns(ip,i):
+        return {
+            "@class" : "device",
+            "ip" : str(ip),
+            "attributes" : [ {
+                "name" : "dnsname",
+                "value" : "gnarled.mellon." + str(ip) + ".com"
+            } ],
+            "phaseComplete" : False,
+            "created" : 1538421241211,
+            }
+
 def test_add_10k_devices(server):
     '''Test adding 10K single devices'''
     zone = setup_zone(server)
     collector = setup_collector('Demilitarized', server, server._host, zone)
     hostDiscovery = DeviceWriter(collector, device_host, 'hostDiscovery', 'icmp')
     snmpDiscovery = DeviceWriter(collector, device_snmpDiscovery, 'snmpDiscovery', 'snmpv2')
+    dnsDiscovery = DeviceWriter(collector, device_dns, 'dns', 'unspecified')
     
     i = 0
     devices = { 'devices' : [] }
@@ -60,6 +73,7 @@ def test_add_10k_devices(server):
     for ip in network:
         hostDiscovery.add(ip)
         snmpDiscovery.add(ip)
+        dnsDiscovery.add(ip)
         i += 1
         if i == 1000:
             break
