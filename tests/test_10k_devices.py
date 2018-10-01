@@ -59,6 +59,19 @@ def device_dns(ip,i):
             "created" : 1538421241211,
             }
 
+def device_tcp(ip,i):
+    return {
+        "@class" : "device",
+        "ip" : str(ip),
+        "profileData" : [ {
+            "type" : "tcp",
+            "data" : "tcpsynack:4:64:0:1460:mss*10,7:mss,nop,nop,ts,nop,ws:df:0"
+        } ],
+        "phaseComplete" : True,
+        "created" : 1538421240160,
+        "openTcpPorts" : [ 80, 443 ]
+        }
+
 def test_add_10k_devices(server):
     '''Test adding 10K single devices'''
     zone = setup_zone(server)
@@ -66,6 +79,7 @@ def test_add_10k_devices(server):
     hostDiscovery = DeviceWriter(collector, device_host, 'hostDiscovery', 'icmp')
     snmpDiscovery = DeviceWriter(collector, device_snmpDiscovery, 'snmpDiscovery', 'snmpv2')
     dnsDiscovery = DeviceWriter(collector, device_dns, 'dns', 'unspecified')
+    tcpDiscovery = DeviceWriter(collector, device_tcp, 'tcpPorts', 'tcp')
     
     i = 0
     devices = { 'devices' : [] }
@@ -75,7 +89,7 @@ def test_add_10k_devices(server):
         snmpDiscovery.add(ip)
         dnsDiscovery.add(ip)
         i += 1
-        if i == 1000:
+        if i == 10000:
             break
 
 
