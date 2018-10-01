@@ -7,18 +7,59 @@ def device_host(ip, i):
              "phaseComplete" : False,
              "created" : 1535388219912 }
 
+def device_snmpDiscovery(ip, i):
+    return {
+  "@class" : "device",
+  "ip" : str(ip),
+  "attributes" : [ {
+    "name" : "sysLocation",
+    "value" : "Unknown"
+  }, {
+    "name" : "sysDescr",
+    "value" : "Lumeta Spectre Command Center version 3.3.0.12177 for lumeta_dev"
+  }, {
+    "name" : "sysServices",
+    "value" : "end-to-end,application"
+  }, {
+    "name" : "SerialNumber",
+    "value" : "serial" + str(ip)
+  }, {
+    "name" : "sysName",
+    "value" : str(ip)
+  }, {
+    "name" : "sysObjectID",
+    "value" : "1.3.6.1.4.1.48995.2.4.1"
+  }, {
+    "name" : "sysContact",
+    "value" : "root@localhost"
+  } ],
+  "profileData" : [ {
+    "type" : "sysObjectID",
+    "data" : "1.3.6.1.4.1.48995.2.4.1",
+    "port" : 0
+  }, {
+    "type" : "sysDescr",
+    "data" : "Lumeta Spectre Command Center version 3.3.0.12177 for lumeta_dev",
+    "port" : 0
+  } ],
+  "phaseComplete" : False,
+  "created" : 1538390547675,
+  "snmpAliases" : [ "alias" + str(i%5), "public" ],
+}
 
 def test_add_10k_devices(server):
     '''Test adding 10K single devices'''
     zone = setup_zone(server)
     collector = setup_collector('Demilitarized', server, server._host, zone)
     hostDiscovery = DeviceWriter(collector, device_host, 'hostDiscovery', 'icmp')
+    snmpDiscovery = DeviceWriter(collector, device_snmpDiscovery, 'snmpDiscovery', 'snmpv2')
     
     i = 0
     devices = { 'devices' : [] }
     network = ipaddress.ip_network('10.0.0.0/8')
     for ip in network:
         hostDiscovery.add(ip)
+        snmpDiscovery.add(ip)
         i += 1
         if i == 1000:
             break
