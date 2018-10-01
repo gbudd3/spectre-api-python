@@ -69,6 +69,7 @@ def device_tcp(ip,i):
         } ],
         "phaseComplete" : True,
         "created" : 1538421240160,
+        "closedTcpPorts" : [ 113, 1041, 1047, 88, 1002, 1036, 79 ],
         "openTcpPorts" : [ 80, 443 ]
         }
 
@@ -88,6 +89,7 @@ def test_add_10k_devices(server):
         hostDiscovery.add(ip)
         snmpDiscovery.add(ip)
         dnsDiscovery.add(ip)
+        tcpDiscovery.add(ip)
         i += 1
         if i == 10000:
             break
