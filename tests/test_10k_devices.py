@@ -1,32 +1,55 @@
 '''Tests around collector.add_devices'''
 import ipaddress
 
+def device_host(ip, i):
+    return { "@class" : "device",
+             "ip" : str(ip),
+             "phaseComplete" : False,
+             "created" : 1535388219912 }
+
+
 def test_add_10k_devices(server):
     '''Test adding 10K single devices'''
     zone = setup_zone(server)
     collector = setup_collector('Demilitarized', server, server._host, zone)
+    hostDiscovery = DeviceWriter(collector, device_host, 'hostDiscovery', 'icmp')
     
     i = 0
     devices = { 'devices' : [] }
     network = ipaddress.ip_network('10.0.0.0/8')
     for ip in network:
-        device = { "@class" : "device",
-                "ip" : str(ip),
-                "phaseComplete" : False,
-                "created" : 1535388219912 }
-        devices['devices'].append(device)
+        hostDiscovery.add(ip)
         i += 1
-        if i % 100 == 0:
-            collector.add_devices(devices)
-            devices = { 'devices' : [] }
-
-        if i == 10000:
+        if i == 1000:
             break
 
 
     results = zone.query().filter('address.ip','1.0.0.255').run()
     assert results.values(), "There should be a 10.0.0.255, we just added it"
 
+def device_host(ip, i):
+    return { "@class" : "device",
+             "ip" : str(ip),
+             "phaseComplete" : False,
+             "created" : 1535388219912 }
+
+class DeviceWriter:
+    def __init__(self, collector, device_function, scan_type, protocol, batch_size=100):
+        self.collector = collector
+        self.device_function = device_function
+        self.scan_type = scan_type
+        self.protocol = protocol
+        self.batch_size = batch_size
+        self.i = 0
+        self.devices = { 'devices' : [] }
+
+    def add(self,ip):
+        self.devices['devices'].append( self.device_function(ip, self.i))
+        self.i += 1
+        if self.i % self.batch_size == 0:
+            self.collector.add_devices(self.devices, scanType=self.scan_type, protocol=self.protocol)
+            self.devices = { 'devices' : [] }    
+            
  
 def setup_zone(server):
     zone = server.get_zone_by_name('Demilitarized')
