@@ -1,8 +1,11 @@
 '''This module carries the code needed to deal with Spectre collectors
 '''
+import calendar
 import ipaddress
+import json
 import math
 import spectreapi
+import time
 from typing import List, Union
 
 IPNetwork = Union[ipaddress.IPv4Network,ipaddress.IPv6Network]
@@ -153,3 +156,20 @@ class Collector:
     def get_stop_cidrs(self) -> List[IPNetwork]:
         '''Return the list of "Stop" CIDRs for this collector'''
         return self._get_cidrs('stop')
+
+    def add_devices(self, devices, scanType='external', protocol='unspecified'):
+        if "devices" not in devices:
+            devices = { 'devices' : [ devices ] }
+
+        responses = [{'collector': {'id': self.id_num, 'uuid': self.uuid},
+        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }]
+       
+        for device in devices['devices']:
+            device['responses'] = responses
+
+        result = self.server.put(('publish/device/%s' % self.uuid) , data=json.dumps(devices))
+        if not result.ok:
+            raise APIException(result)
+
+        return
+           
