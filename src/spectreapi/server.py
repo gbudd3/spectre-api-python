@@ -182,6 +182,19 @@ class Server:
 
         return None
 
+    def get_or_create_zone(self, name, description="Test Zone", organization={"id": 1, "name": "Test Organization"}):
+        zone = self.get_zone_by_name(name)
+        if zone:
+            return zone
+        data = [{ "@class" : "zone",
+            "name" : name,
+            "description" : description,
+            "organization": organization
+            }]
+        r = self.post("zone", data=json.dumps(data))
+        zone = self.get_zone_by_name(name)
+        return zone
+
 
     def get_collectors(self) -> List['spectreapi.Collector']:
         '''Returns the Collectors configured on the server'''

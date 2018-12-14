@@ -3,7 +3,7 @@
 def test_add_device(server):
     '''Test adding a single device'''
     zone = setup_zone(server)
-    collector = setup_collector('Demilitarized', server, server._host, zone)
+    collector = setup_collector('DemilitarizedPip', server, server._host, zone)
     device = { "@class" : "device",
             "ip" : "1.1.1.1",
             "phaseComplete" : False,
@@ -16,7 +16,7 @@ def test_add_device(server):
 def test_add_devices(server):
     '''Test adding a multiple devices'''
     zone = setup_zone(server)
-    collector = setup_collector('Demilitarized', server, server._host, zone)
+    collector = setup_collector('DemilitarizedPip', server, server._host, zone)
     devices = {'devices' : [ 
         { "@class" : "device",
             "ip" : "1.1.1.2",
@@ -37,20 +37,20 @@ def test_add_devices(server):
  
  
 def setup_zone(server):
-    zone = server.get_zone_by_name('Demilitarized')
+    zone = server.get_zone_by_name('DemilitarizedPip')
     if zone:
         return zone
 
     data = '''
         [{
             "@class":"zone",
-            "name":"Demilitarized",
+            "name":"DemilitarizedPip",
             "description": "Zone to Test Creating Devices",
             "organization":{"id":1, "name":"Test Organization"}
         }]
         '''
     r = server.post("zone", data=data);
-    zone = server.get_zone_by_name('Demilitarized')
+    zone = server.get_zone_by_name('DemilitarizedPip')
     return zone
 
 def setup_collector(collector_name, server,host,zone):
@@ -71,7 +71,7 @@ def setup_collector(collector_name, server,host,zone):
             },
             "zone" : {
             "id" : %d,
-            "name" : "Demilitarized"
+            "name" : "DemilitarizedPip"
             },
             "enabled" : true,
             "rescanInterval" : 150,

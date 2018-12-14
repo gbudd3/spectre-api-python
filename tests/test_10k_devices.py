@@ -46,6 +46,189 @@ def device_snmpDiscovery(ip, i):
   "created" : 1538390547675,
   "snmpAliases" : [ "alias" + str(i%5), "public" ],
 }
+def device_snmpDetail(ip,i):
+    return {
+  "@class" : "device",
+  "ip" : str(ip),
+  "interfaces" : [ {
+    "index" : 1,
+    "description" : "lo",
+    "name" : "lo",
+    "alias" : "",
+    "adminStatus" : "up",
+    "opStatus" : "up",
+    "addresses" : [ "::", "127.0.0.1/8" ],
+    "routes" : [ {
+      "route" : "fe80::250:56ff:fe8e:b667",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 1,
+      "asNum" : 0
+    }, {
+      "route" : "2600:802:460:653:250:56ff:fe8e:b667",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 1,
+      "asNum" : 0
+    }, {
+      "route" : "::",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 1,
+      "asNum" : 0
+    } ]
+  }, {
+    "index" : 3,
+    "description" : "eth1",
+    "name" : "eth1",
+    "alias" : "",
+    "adminStatus" : "up",
+    "opStatus" : "up",
+    "physicalAddress" : "00:50:56:8e:b6:67",
+    "addresses" : [ "fe80::250:56ff:fe8e:b667/64", "2600:802:460:653:250:56ff:fe8e:b667/64", "172.16.53.129/25" ],
+    "routes" : [ {
+      "route" : "172.16.53.128/25",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    }, {
+      "route" : "::/0",
+      "type" : "remote",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    }, {
+      "route" : "fe80::/64",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    }, {
+      "route" : "2600:802:460:653::/64",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    }, {
+      "route" : "169.254.0.0/16",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+      }, {
+      "route" : "172.16.53.128",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    }, {
+      "route" : "ff00::/8",
+      "nextHop" : "::",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 3,
+      "asNum" : 0
+    } ],
+    "hosts" : [ {
+      "mac" : "54:75:d0:19:4a:3f",
+      "ip" : "fe80::5675:d0ff:fe19:4a3f"
+    }, {
+      "mac" : "00:50:56:8e:d4:00",
+      "ip" : "172.16.53.130"
+    } ]
+  }, {
+    "index" : 2,
+    "description" : "eth0",
+    "name" : "eth0",
+    "alias" : "",
+    "adminStatus" : "up",
+    "opStatus" : "up",
+    "physicalAddress" : "00:50:56:8e:61:23",
+    "addresses" : [ str(ip)+"/24" ],
+    "routes" : [ {
+      "route" : str(ip) + "/24",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+    }, {
+      "route" : "0.0.0.0/0",
+      "type" : "remote",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+          }, {
+      "route" : "172.16.53.0",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+    }, {
+      "route" : "169.254.0.0",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+    }, {
+      "route" : "169.254.0.0/16",
+      "type" : "local",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+    }, {
+      "route" : "0.0.0.0/0",
+      "nextHop" : "172.16.53.1",
+      "type" : "remote",
+      "protocol" : "local",
+      "ifIndex" : 2,
+      "asNum" : 0
+    } ],
+    "hosts" : [ {
+      "mac" : "54:75:d0:19:4a:3f",
+      "ip" : "172.16.53.1"
+    } ]
+  } ],
+    "attributes" : [ {
+    "name" : "RFC4292",
+    "value" : "true"
+  }, {
+    "name" : "sysContact",
+    "value" : "Root <root@localhost> (configure /etc/snmp/snmp.local.conf)"
+  }, {
+    "name" : "sysDescr",
+    "value" : "Linux i10.corp.lumeta.com 2.6.32-573.el6.x86_64 #1 SMP Thu Jul 23 15:44:03 UTC 2015 x86_64"
+  }, {
+    "name" : "sysObjectID",
+    "value" : "1.3.6.1.4.1.8072.3.2.10"
+  }, {
+    "name" : "sysName",
+    "value" : "i10.corp.lumeta.com"
+  }, {
+    "name" : "sysLocation",
+    "value" : "Unknown (edit /etc/snmp/snmpd.conf)"
+  }, {
+    "name" : "RFC2096",
+    "value" : "true"
+  } ],
+  "profileData" : [ {
+    "type" : "sysDescr",
+    "data" : "Linux i10.corp.lumeta.com 2.6.32-573.el6.x86_64 #1 SMP Thu Jul 23 15:44:03 UTC 2015 x86_64",
+    "port" : 0
+  }, {
+    "type" : "sysObjectID",
+    "data" : "1.3.6.1.4.1.8072.3.2.10",
+    "port" : 0
+  } ],
+  "phaseComplete" : False,
+  "created" : 1538442765877,
+  "snmpAliases" : [ "aliasforpublic" ]
+  }
 
 def device_dns(ip,i):
         return {
@@ -79,6 +262,7 @@ def test_add_10k_devices(server):
     collector = setup_collector('Demilitarized', server, server._host, zone)
     hostDiscovery = DeviceWriter(collector, device_host, 'hostDiscovery', 'icmp')
     snmpDiscovery = DeviceWriter(collector, device_snmpDiscovery, 'snmpDiscovery', 'snmpv2')
+    snmpDetail = DeviceWriter(collector, device_snmpDetail, 'snmpDetails', 'snmpv2')
     dnsDiscovery = DeviceWriter(collector, device_dns, 'dns', 'unspecified')
     tcpDiscovery = DeviceWriter(collector, device_tcp, 'tcpPorts', 'tcp')
     
@@ -88,6 +272,7 @@ def test_add_10k_devices(server):
     for ip in network:
         hostDiscovery.add(ip)
         snmpDiscovery.add(ip)
+        snmpDetail.add(ip)
         dnsDiscovery.add(ip)
         tcpDiscovery.add(ip)
         i += 1

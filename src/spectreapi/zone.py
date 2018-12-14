@@ -169,6 +169,41 @@ class Zone:
     def query(self, api='zonedata/devices'):
         return self.server.query(api).filter('zone.id', self.id_num)
 
+    def get_or_create_collector(self,name):
+        collector = self.server.get_collector_by_name(name)
+        if collector:
+            return collector
+
+        data = '''
+            [ {
+                "@class" : "collector",
+                "name" : "%s",
+                "discoveryInterface" : {
+                "name" : "%s:eth0",
+                "type" : "ETHERNET",
+                "active" : true,
+                "config" : "manual/10000/full",
+                "ospf" : { }
+                },
+                "zone" : {
+                "id" : %d,
+                "name" : "%s"
+                },
+                "enabled" : true,
+                "rescanInterval" : 150,
+                "hostDiscovery" : {
+                    "enabled" : true,
+                    "icmp" : true,
+                    "dns" : false,
+                    "snmp" : false,
+                    "udp" : false
+                }
+                } ] ''' % (name, self.server.host, self.id_num, self.name)
+        r = self.server.post("zone/collector", data=data);
+        collector = self.server.get_collector_by_name(name)
+        return collector
+
+
     def get_device_details_by_ip(self, ip):
         '''Return the details for one ore more devices for a zone with an address of <ip>
         This method returns all available details (minus the profile data prior to Spectre 3.3.1)'''
