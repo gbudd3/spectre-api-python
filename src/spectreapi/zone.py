@@ -3,6 +3,7 @@ import ipaddress
 from distutils.version import LooseVersion
 import math
 import spectreapi
+import json
 
 class Zone:
     '''Class abstracts out Spectre Zones

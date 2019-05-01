@@ -6,6 +6,7 @@ a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 import requests
 import urllib3
 import spectreapi
+import json
 from typing import Optional, List, Iterable
 
 
@@ -356,7 +357,7 @@ class Query:
         """
         return self.server.get(self.api, self.params)
 
-    def filter(self, name, value) -> 'spectreapi.Query':
+    def filter(self, name, value=True) -> 'spectreapi.Query':
         """
         Add a filter to the query
         """

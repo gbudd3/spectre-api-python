@@ -157,6 +157,23 @@ class Collector:
         '''Return the list of "Stop" CIDRs for this collector'''
         return self._get_cidrs('stop')
 
+    def add_traces(self, traces, scanType='external', protocol='unspecified'):
+        if "traces" not in traces:
+            traces = { 'traces' : [ traces ] }
+
+        responses = {'collector': {'id': self.id_num, 'uuid': self.uuid},
+        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }
+       
+        for trace in traces['traces']:
+            trace['response'] = responses
+
+        print(json.dumps(traces))
+        result = self.server.put(('publish/path/%s' % self.uuid), data=json.dumps(traces))
+        if not result.ok:
+            raise APIException(result)
+
+        return    
+
     def add_devices(self, devices, scanType='external', protocol='unspecified'):
         if "devices" not in devices:
             devices = { 'devices' : [ devices ] }
@@ -172,4 +189,5 @@ class Collector:
             raise APIException(result)
 
         return
-           
+
+
