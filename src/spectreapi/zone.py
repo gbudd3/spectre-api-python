@@ -199,7 +199,7 @@ class Zone:
                     "snmp" : false,
                     "udp" : false
                 }
-                } ] ''' % (name, self.server.host, self.id_num, self.name)
+                } ] ''' % (name, self.server.name, self.id_num, self.name)
         r = self.server.post("zone/collector", data=data);
         collector = self.server.get_collector_by_name(name)
         return collector

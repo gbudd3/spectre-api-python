@@ -35,6 +35,12 @@ class Server:
         return self._host
 
     @property
+    def name(self) -> str:
+        '''Returns the server name '''
+        return self._name
+
+
+    @property
     def version(self) -> str:
         '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
         return self._version
@@ -320,6 +326,7 @@ class APIKeyServer(Server):
         self.session.headers['Authorization'] = "Bearer " + api_key
         results = self.get("system/information")
         self._version = results.result['version']
+        self._name = results.json()['results'][0]['name']
 
 class UsernameServer(Server):
     """
@@ -332,6 +339,7 @@ class UsernameServer(Server):
         headers = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
         results = requests.get(self.url + "system/information", headers=headers, verify=False, auth=auth)
         self._version = results.json()['results'][0]['version']
+        self._name = results.json()['results'][0]['name']
         self.session.cookies = results.cookies
 
 class Query:

@@ -167,7 +167,6 @@ class Collector:
         for trace in traces['traces']:
             trace['response'] = responses
 
-        print(json.dumps(traces))
         result = self.server.put(('publish/path/%s' % self.uuid), data=json.dumps(traces))
         if not result.ok:
             raise APIException(result)
