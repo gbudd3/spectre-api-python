@@ -137,7 +137,7 @@ class Server:
 
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
-        results = self.session.get(self.url+api, params=params, timeout=30, headers=headers)
+        results = self.session.get(self.url+api, params=params, timeout=120, headers=headers)
         if not results.ok:
             print(results.text)
             raise APIException(results)
