@@ -191,7 +191,7 @@ class Zone:
                 "name" : "%s"
                 },
                 "enabled" : true,
-                "rescanInterval" : 150,
+                "rescanInterval" : 1000000,
                 "hostDiscovery" : {
                     "enabled" : true,
                     "icmp" : true,
