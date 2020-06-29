@@ -232,4 +232,17 @@ class Zone:
             params['detail.Profile'] = True
             params['detail.ProfileDetails'] = True
 
-        return self.server.get('zonedata/devices', params=params)
+        temp = self.server.get('zonedata/devices', params=params)
+
+        # If we look for an ip that isn't the reference IP we won't get a device
+        # The following lines look for the reference IP associated with <ip> and 
+        # try querying for that instead
+
+        if temp.total == 0:
+            result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated', 'true').run()
+            if result.total > 0 and result.result['referenceIp']:
+                return self.get_device_details_by_ip(result.result['referenceIp'])
+
+        else:
+            return temp
+
