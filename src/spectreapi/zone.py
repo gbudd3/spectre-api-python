@@ -205,9 +205,11 @@ class Zone:
         return collector
 
 
-    def get_device_details_by_ip(self, ip):
-        '''Return the details for one ore more devices for a zone with an address of <ip>
-        This method returns all available details (minus the profile data prior to Spectre 3.3.1)'''
+    def get_device_details_by_ip(self, ip, query_reference_ip=True):
+        '''Return the details for one device for a zone with an address of <ip>
+        This method returns all available details (minus the profile data prior to Spectre 3.3.1)
+        If query_reference_ip is True (the default) we'll query for the reference IP associated with <ip> and
+        return the details for that.  If query_reference_ip is False, we won't chase the reference IP but will return details for the child (if any)'''
         params = {
             'filter.zone.id': self.id_num,
             'filter.address.ip' : ip,
@@ -239,10 +241,13 @@ class Zone:
         # try querying for that instead
 
         if temp.total == 0:
-            result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated', 'true').run()
-            if result.total > 0 and result.result['referenceIp']:
-                return self.get_device_details_by_ip(result.result['referenceIp'])
-
+            if query_reference_ip:
+                result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated', 'true').run()
+                if result.total > 0 and result.result['referenceIp']:
+                    return self.get_device_details_by_ip(result.result['referenceIp'])
+            else:
+                params['filter.device.associated'] = True
+                return self.server.get('zonedata/devices', params=params)
         else:
             return temp
 
