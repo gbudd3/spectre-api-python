@@ -326,7 +326,7 @@ class APIKeyServer(Server):
         self.session.headers['Authorization'] = "Bearer " + api_key
         results = self.get("system/information")
         self._version = results.result['version']
-        self._name = results.json()['results'][0]['name']
+        self._name = results.result['name']
 
 class UsernameServer(Server):
     """
