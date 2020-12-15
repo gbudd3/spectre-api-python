@@ -20,7 +20,7 @@ def main():
     debug = args.debug
 
 
-    server = spectreapi.UsernameServer(host, 'admin', 'admin')
+    server = spectreapi.UsernameServer(host, 'username', 'password')
 
     # Creating a zone is pretty easy, via get_or_create_zone
     zone = server.get_or_create_zone('Example 1')
