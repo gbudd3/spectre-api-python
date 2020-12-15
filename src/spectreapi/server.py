@@ -57,7 +57,7 @@ class Server:
         """
         This method POSTs to the Spectre API
         >>> import spectreapi
-        >>> s = spectreapi.UsernameServer("6hour", "admin", "admin")
+        >>> s = spectreapi.UsernameServer("server", "username", "password")
         >>> data = '''
         ...         [{
         ...             "@class":"zone",
@@ -148,7 +148,7 @@ class Server:
         Use this method to GET results from an API call and produce
         an iterable response
         >>> import spectreapi
-        >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+        >>> s=spectreapi.UsernameServer('server','username','password')
         >>> s.get('zone').results.json()
         {'@class': 'apiresponse', 'status': 'SUCCESS', 'method': 'ZoneManagement.getZones', 'total': 2, 'results': [{'@class': 'zone', 'id': 2, 'name': 'Twilight', 'description': 'Zone to Test Scanning'}, {'@class': 'zone', 'id': 1, 'name': 'Zone1', 'description': 'Default Zone'}]}
         >>> r = s.get('zone')
@@ -164,7 +164,7 @@ class Server:
     def query(self, api="zonedata/devices"):
         """
         >>> import spectreapi
-        >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+        >>> s=spectreapi.UsernameServer('server','username','password')
         >>> q=s.query().filter('zone.id',2).detail('Attributes')
         >>> for d in q.run():
         ...     print(d)
@@ -346,7 +346,7 @@ class Query:
     """
     Class to store the state around a GET request from a server
     >>> import spectreapi
-    >>> s=spectreapi.UsernameServer('6hour','admin','admin')
+    >>> s=spectreapi.UsernameServer('server','username','password')
     >>> q=s.query().filter('zone.id',2).detail('Attributes')
     >>> for d in q.run():
     ...     print(d)

@@ -111,7 +111,7 @@ class Collector:
         to add CIDRs to the target list.
 
         >>> import spectreapi
-        >>> server = spectreapi.UsernameServer('6hour','admin','admin')
+        >>> server = spectreapi.UsernameServer('server','username','password')
         >>> collector = server.getCollectorByName('RodSerling')
         >>> collector.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
@@ -139,7 +139,7 @@ class Collector:
         Gets the "Target" CIDRs for this collector
 
         >>> import spectreapi
-        >>> s = spectreapi.UsernameServer('6hour','admin','admin')
+        >>> s = spectreapi.UsernameServer('server','username','password')
         >>> c = s.getCollectors()[0]
         >>> c.name
         'RodSerling'
