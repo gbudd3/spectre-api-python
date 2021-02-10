@@ -26,30 +26,31 @@ class Server:
         self._host = server
         self._version = None
         self.session.timeout = 1
+        self._name = None
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     @property
     def host(self) -> str:
-        '''Returns the server name (or IP) specified in the constructor'''
+        """Returns the server name (or IP) specified in the constructor"""
         return self._host
 
     @property
     def name(self) -> str:
-        '''Returns the server name '''
+        """Returns the server name """
         return self._name
 
     @property
     def version(self) -> str:
-        '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
+        """Returns the version of the Spectre server we're talking with (as reported by that server"""
         return self._version
 
     def close(self):
-        '''
+        """
         It's not _required_ to close a Server, but if you don't, you might
         hold tcp sockets open (the underlying requests and urllib3 modules
         hold them for keepalive purposes)
-        '''
+        """
         self.session.close()
 
     def post(self, api, **kargs) -> requests.Response:
@@ -100,7 +101,7 @@ class Server:
         return result
 
     def put(self, api, **kargs):
-        '''Method PUTs through to the server'''
+        """Method PUTs through to the server"""
 
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
@@ -111,7 +112,7 @@ class Server:
         return result
 
     def delete(self, api, **kargs) -> requests.Response:
-        '''Method sends DELETEs through to server'''
+        """Method sends DELETEs through to server"""
 
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
@@ -169,7 +170,7 @@ class Server:
         return Query(self, api)
 
     def get_zones(self) -> List['spectreapi.Zone']:
-        '''Returns all the Zones configured on the server'''
+        """Returns all the Zones configured on the server"""
         zones = []
         result = self.get('zone')
         for zone in result:
@@ -178,7 +179,7 @@ class Server:
         return zones
 
     def get_zone_by_name(self, name) -> Optional['spectreapi.Zone']:
-        '''Returns the Zone configured on the server named <name> (if present)'''
+        """Returns the Zone configured on the server named <name> (if present"""
         results = self.get('zone')
         for zone in results:
             if zone['name'] == name:
@@ -200,7 +201,7 @@ class Server:
         return zone
 
     def get_collectors(self) -> List['spectreapi.Collector']:
-        '''Returns the Collectors configured on the server'''
+        """Returns the Collectors configured on the server"""
         collectors = []
         results = self.get('zone/collector')
         for collector in results:
@@ -214,7 +215,7 @@ class Server:
         return collectors
 
     def get_collector_by_name(self, name) -> Optional['spectreapi.Collector']:
-        '''Returns the Collector configured on the server named <name> (if present)'''
+        """Returns the Collector configured on the server named <name> (if present"""
         results = self.get('zone/collector')
         for collector in results:
             if collector['name'] == name:
@@ -250,7 +251,7 @@ class Response():
             self.total = 1
 
     def rewind(self):
-        '''Used to reset state after iterating over results'''
+        """Used to reset state after iterating over results"""
         self.page = 0
         self.page_line = 0
         self.results = self.server.getpage(
@@ -260,7 +261,7 @@ class Response():
         return self
 
     def __next__(self):
-        '''This facilitates being able to iterate over the results of a GET'''
+        """This facilitates being able to iterate over the results of a GET"""
         if self.page * self.server.page_size + self.page_line == self.total:
             self.rewind()
             raise StopIteration
@@ -383,23 +384,23 @@ class Query:
 
 
 class SpectreException(Exception):
-    '''General Base Spectre exception'''
+    """General Base Spectre exception"""
     pass
 
 
 class NoServerException(SpectreException):
-    '''Specter exception for when we call a
-    method that needs a server but we don't have one'''
+    """Spectre exception for when we call a
+    method that needs a server but we don't have one"""
     pass
 
 
 class InvalidArgument(SpectreException):
-    '''Invalid argument'''
+    """Invalid argument"""
     pass
 
 
 class APIException(SpectreException):
-    '''We got an exception back from the Spectre API call'''
+    """We got an exception back from the Spectre API call"""
 
     def __init__(self, request):
         super().__init__()
