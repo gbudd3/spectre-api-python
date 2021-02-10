@@ -71,5 +71,3 @@ class Response:
     def values(self):
         """Return the values from the API call"""
         return self.results.json()['results']
-
-

@@ -8,12 +8,14 @@ import spectreapi
 import time
 from typing import List, Union
 
-IPNetwork = Union[ipaddress.IPv4Network,ipaddress.IPv6Network]
+IPNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
+
 
 class Collector:
     '''This class encapsulates operations on Spectre collectors.
     a "Collector" is a set of scan configuration associated with a specific
     Scout network interface.'''
+
     def __init__(self, id_num, uuid, name, zone, server=None):
         self.id_num = id_num
         self.uuid = uuid
@@ -22,12 +24,12 @@ class Collector:
         self.server = server
 
     def __repr__(self):
-        return('Collector(%d, "%s", "%s", %s)' %
-               (self.id_num, self.uuid, self.name, self.zone.__repr__()))
+        return ('Collector(%d, "%s", "%s", %s)' %
+                (self.id_num, self.uuid, self.name, self.zone.__repr__()))
 
     def __str__(self):
-        return('id=%d, uuid=%s, name=%s, zone=%s)' %
-               (self.id_num, self.uuid, self.name, self.zone.__str__()))
+        return ('id=%d, uuid=%s, name=%s, zone=%s)' %
+                (self.id_num, self.uuid, self.name, self.zone.__str__()))
 
     def _get_cidrs(self, cidr_type) -> List[IPNetwork]:
         if cidr_type not in ('target', 'avoid', 'stop'):
@@ -45,54 +47,54 @@ class Collector:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.invalidargument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise spectreapi.noserverexception('collector.setcidrs() needs a collector with server')
+            raise spectreapi.NoServerException('collector.setcidrs() needs a collector with server')
 
         clist = []
         for cidr in cidrs:
-            if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
+            if isinstance(cidr, list):  # okay, we're a list of cidrs (hopefully)
                 for c2 in cidr:
                     clist.append('{"address":"%s"}' % str(c2))
             else:
-                 clist.append('{"address":"%s"}' % str(cidr))
+                clist.append('{"address":"%s"}' % str(cidr))
 
-        for i in range( math.ceil( len(clist) / chunk_size)):
-            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+        for i in range(math.ceil(len(clist) / chunk_size)):
+            data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             params = {"append": str(append).lower()}
             results = self.server.post('zone/collector/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data, params=params)
-            append = True # after the first chunk, append regardless
+                                       (self.id_num, cidr_type), data=data, params=params)
+            append = True  # after the first chunk, append regardless
 
             if not results.ok:
-                raise spectreapi.spectreexception(results.text)
+                raise spectreapi.SpectreException(results.text)
 
         return results
 
     def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.invalidargument('%s is not a valid type for _delete_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _delete_cidrs')
 
         if self.server is None:
-            raise spectreapi.noserverexception('collector._delete_cidrs() needs a collector with server')
+            raise spectreapi.NoServerException('collector._delete_cidrs() needs a collector with server')
 
         clist = []
         for cidr in cidrs:
-            if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
+            if isinstance(cidr, list):  # okay, we're a list of cidrs (hopefully)
                 for c2 in cidr:
                     clist.append('{"address":"%s"}' % str(c2))
             else:
-                 clist.append('{"address":"%s"}' % str(cidr))
+                clist.append('{"address":"%s"}' % str(cidr))
 
-        for i in range( math.ceil( len(clist) / chunk_size)):
-            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+        for i in range(math.ceil(len(clist) / chunk_size)):
+            data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             results = self.server.delete('zone/collector/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data)
-            append = True # after the first chunk, append regardless
+                                         (self.id_num, cidr_type), data=data)
+            append = True  # after the first chunk, append regardless
 
             if not results.ok:
-                raise spectreapi.spectreexception(results.text)
+                raise spectreapi.SpectreException(results.text)
 
         return results
 
@@ -112,7 +114,7 @@ class Collector:
 
         >>> import spectreapi
         >>> server = spectreapi.UsernameServer('server','username','password')
-        >>> collector = server.getCollectorByName('RodSerling')
+        >>> collector = server.get_collector_by_name('RodSerling')
         >>> collector.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
         >>> collector.set_target_cidrs('10.0.0.1/32','10.0.0.2/32',append=True)
@@ -140,7 +142,7 @@ class Collector:
 
         >>> import spectreapi
         >>> s = spectreapi.UsernameServer('server','username','password')
-        >>> c = s.getCollectors()[0]
+        >>> c = s.get_collectors()[0]
         >>> c.name
         'RodSerling'
         >>> c.get_target_cidrs() # doctest: +ELLIPSIS
@@ -159,34 +161,34 @@ class Collector:
 
     def add_traces(self, traces, scanType='external', protocol='unspecified'):
         if "traces" not in traces:
-            traces = { 'traces' : [ traces ] }
+            traces = {'traces': [traces]}
 
         responses = {'collector': {'id': self.id_num, 'uuid': self.uuid},
-        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }
-       
+                     'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime()) * 1000,
+                     'NACK': False}
+
         for trace in traces['traces']:
             trace['response'] = responses
 
         result = self.server.put(('publish/path/%s' % self.uuid), data=json.dumps(traces))
         if not result.ok:
-            raise APIException(result)
-
-        return    
-
-    def add_devices(self, devices, scanType='external', protocol='unspecified'):
-        if "devices" not in devices:
-            devices = { 'devices' : [ devices ] }
-
-        responses = [{'collector': {'id': self.id_num, 'uuid': self.uuid},
-        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }]
-       
-        for device in devices['devices']:
-            device['responses'] = responses
-
-        result = self.server.put(('publish/device/%s' % self.uuid) , data=json.dumps(devices))
-        if not result.ok:
-            raise APIException(result)
+            raise spectreapi.APIException(result)
 
         return
 
+    def add_devices(self, devices, scanType='external', protocol='unspecified'):
+        if "devices" not in devices:
+            devices = {'devices': [devices]}
 
+        responses = [{'collector': {'id': self.id_num, 'uuid': self.uuid},
+                      'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime()) * 1000,
+                      'NACK': False}]
+
+        for device in devices['devices']:
+            device['responses'] = responses
+
+        result = self.server.put(('publish/device/%s' % self.uuid), data=json.dumps(devices))
+        if not result.ok:
+            raise spectreapi.APIException(result)
+
+        return

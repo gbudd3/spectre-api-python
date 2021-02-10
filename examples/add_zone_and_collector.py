@@ -6,11 +6,11 @@ import ipaddress
 import time
 import sys
 
-def main():
 
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--host')
-    parser.add_argument('-d','--debug',action='store_true')
+    parser.add_argument('-d', '--debug', action='store_true')
     args = parser.parse_args()
     if args.host is None:
         print("Hostname (--host) is required")
@@ -18,7 +18,6 @@ def main():
 
     host = args.host
     debug = args.debug
-
 
     server = spectreapi.UsernameServer(host, 'username', 'password')
 
@@ -34,12 +33,10 @@ def main():
     # or a more human readable one by running:
     # print(json.dumps(server.query("zone/collector").filter('collector.name','Zone1').detail("Config").run().result, indent=4))
 
-
     collector.set_target_cidrs('10.101.1.0/24', '10.101.2.0/24', '172.18.1.0/24')
 
 
-def setup_collector(collector_name, server,host,zone):
-
+def setup_collector(collector_name, server, host, zone):
     collector = server.get_collector_by_name(collector_name)
     if collector:
         return collector
@@ -245,11 +242,10 @@ def setup_collector(collector_name, server,host,zone):
             "wmiDiscovery": {},
             "cidrUpdated": 0
         }
- ] ''' % ( zone.id_num, host )
+ ] ''' % (zone.id_num, host)
     r = server.post("zone/collector", data=data);
     collector = server.get_collector_by_name(collector_name)
     return collector
 
+
 main()
-
-

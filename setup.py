@@ -14,14 +14,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-        name="spectre-api",
-        description="Wrapper to use the Lumeta Spectre API",
-        version="0.4.20",
-        license="MIT",
-        install_requires=['requests'],
-        packages=find_packages(where="src"),
-        package_dir={'': 'src'},
-        long_description=long_description,
-        long_description_content_type='text/markdown'
-        )
-
+    name="spectre-api",
+    description="Wrapper to use the Lumeta Spectre API",
+    version="0.4.20",
+    license="MIT",
+    install_requires=['requests'],
+    packages=find_packages(where="src"),
+    package_dir={'': 'src'},
+    long_description=long_description,
+    long_description_content_type='text/markdown'
+)

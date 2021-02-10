@@ -2,6 +2,7 @@
 import spectreapi
 import pytest
 
+
 @pytest.fixture()
 def server():
     '''Just sets up a server'''

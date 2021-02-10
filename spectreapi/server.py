@@ -39,7 +39,6 @@ class Server:
         '''Returns the server name '''
         return self._name
 
-
     @property
     def version(self) -> str:
         '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
@@ -111,7 +110,6 @@ class Server:
             raise APIException(result)
         return result
 
-
     def delete(self, api, **kargs) -> requests.Response:
         '''Method sends DELETEs through to server'''
 
@@ -122,7 +120,6 @@ class Server:
         if not result.ok:
             raise APIException(result)
         return result
-
 
     def getpage(self, api, params=None, page=0, headers=None) -> requests.Response:
         """
@@ -137,7 +134,7 @@ class Server:
 
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
-        results = self.session.get(self.url+api, params=params, timeout=120, headers=headers)
+        results = self.session.get(self.url + api, params=params, timeout=120, headers=headers)
         if not results.ok:
             print(results.text)
             raise APIException(results)
@@ -193,15 +190,14 @@ class Server:
         zone = self.get_zone_by_name(name)
         if zone:
             return zone
-        data = [{ "@class" : "zone",
-            "name" : name,
-            "description" : description,
-            "organization": organization
-            }]
+        data = [{"@class": "zone",
+                 "name": name,
+                 "description": description,
+                 "organization": organization
+                 }]
         r = self.post("zone", data=json.dumps(data))
         zone = self.get_zone_by_name(name)
         return zone
-
 
     def get_collectors(self) -> List['spectreapi.Collector']:
         '''Returns the Collectors configured on the server'''
@@ -231,6 +227,7 @@ class Server:
                 )
 
         return None
+
 
 class Response():
     """
@@ -300,6 +297,7 @@ class Response():
         """Return the values from the API call"""
         return self.results.json()['results']
 
+
 class APIKeyServer(Server):
     """
     An APIKeyServer is a Server that uses authentication via API key.
@@ -328,11 +326,13 @@ class APIKeyServer(Server):
         self._version = results.result['version']
         self._name = results.result['name']
 
+
 class UsernameServer(Server):
     """
     This Server uses username and password authentication for the initial
     request, and then uses a session cookie from there out
     """
+
     def __init__(self, server, username, password, page_size=500, verify_cert=False):
         super().__init__(server, page_size=page_size, verify_cert=verify_cert)
         auth = requests.auth.HTTPBasicAuth(username, password)
@@ -341,6 +341,7 @@ class UsernameServer(Server):
         self._version = results.json()['results'][0]['version']
         self._name = results.json()['results'][0]['name']
         self.session.cookies = results.cookies
+
 
 class Query:
     """
@@ -351,6 +352,7 @@ class Query:
     >>> for d in q.run():
     ...     print(d)
     """
+
     def __init__(self, server, api) -> 'spectreapi.Query':
         """
         Setup a query for a server with api call <api>
@@ -384,17 +386,21 @@ class SpectreException(Exception):
     '''General Base Spectre exception'''
     pass
 
+
 class NoServerException(SpectreException):
     '''Specter exception for when we call a
     method that needs a server but we don't have one'''
     pass
 
+
 class InvalidArgument(SpectreException):
     '''Invalid argument'''
     pass
 
+
 class APIException(SpectreException):
     '''We got an exception back from the Spectre API call'''
+
     def __init__(self, request):
         super().__init__()
         self.request = request

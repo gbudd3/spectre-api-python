@@ -5,10 +5,12 @@ import math
 import spectreapi
 import json
 
+
 class Zone:
     '''Class abstracts out Spectre Zones
     Zones are basically a collection of Collectors.
     They're useful for grouping sets of results together'''
+
     def __init__(self, id_num, name, description=None, server=None):
         self.id_num = id_num
         self.name = name
@@ -77,26 +79,25 @@ class Zone:
         clist = []
         print(cidrs)
         for cidr in cidrs:
-            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+            if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
                 for c2 in cidr:
                     clist.append('{"address":"%s"}' % str(c2))
             else:
                 clist.append('{"address":"%s"}' % str(cidr))
 
-        for i in range( math.ceil( len(clist) / chunk_size)):
+        for i in range(math.ceil(len(clist) / chunk_size)):
 
-            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+            data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             params = {"append": str(append).lower()}
 
             results = self.server.post('zone/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data, params=params)
-            append = True # after the first chunk, append regardless
+                                       (self.id_num, cidr_type), data=data, params=params)
+            append = True  # after the first chunk, append regardless
 
             if not results.ok:
                 raise spectreapi.SpectreException(results.text)
 
         return results
-
 
     def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
@@ -109,18 +110,18 @@ class Zone:
         clist = []
         print(cidrs)
         for cidr in cidrs:
-            if isinstance(cidr, list): # Okay, we're a list of CIDRs (hopefully)
+            if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
                 for c2 in cidr:
                     clist.append('{"address":"%s"}' % str(c2))
             else:
                 clist.append('{"address":"%s"}' % str(cidr))
 
-        for i in range( math.ceil( len(clist) / chunk_size)):
+        for i in range(math.ceil(len(clist) / chunk_size)):
 
-            data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
+            data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
 
             results = self.server.delete('zone/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data)
+                                         (self.id_num, cidr_type), data=data)
 
             if not results.ok:
                 raise spectreapi.SpectreException(results.text)
@@ -170,7 +171,7 @@ class Zone:
     def query(self, api='zonedata/devices'):
         return self.server.query(api).filter('zone.id', self.id_num)
 
-    def get_or_create_collector(self,name):
+    def get_or_create_collector(self, name):
         collector = self.server.get_collector_by_name(name)
         if collector:
             return collector
@@ -204,7 +205,6 @@ class Zone:
         collector = self.server.get_collector_by_name(name)
         return collector
 
-
     def get_device_details_by_ip(self, ip, query_reference_ip=True):
         '''Return the details for one device for a zone with an address of <ip>
         This method returns all available details (minus the profile data prior to Spectre 3.3.1)
@@ -212,22 +212,22 @@ class Zone:
         return the details for that.  If query_reference_ip is False, we won't chase the reference IP but will return details for the child (if any)'''
         params = {
             'filter.zone.id': self.id_num,
-            'filter.address.ip' : ip,
-            'detail.ScanType' : True,
-            'detail.Attributes' : True,
-            'detail.Protocol' : True,
-            'detail.Port' : True,
-            'detail.AlternateAddress' : True,
-            #'detail.Profile' : True,
-            #'detail.ProfileDetails' : True,
-            'detail.ReferenceIp' : True,
-            'detail.Details' : True,
-            'detail.LeakResponse' : True,
-            'detail.Certificate' : True,
-            'detail.Interfaces' : True,
-            'detail.Vlans' : True,
-            'detail.Collector' : True,
-            'detail.SnmpAlias' : True,
+            'filter.address.ip': ip,
+            'detail.ScanType': True,
+            'detail.Attributes': True,
+            'detail.Protocol': True,
+            'detail.Port': True,
+            'detail.AlternateAddress': True,
+            # 'detail.Profile' : True,
+            # 'detail.ProfileDetails' : True,
+            'detail.ReferenceIp': True,
+            'detail.Details': True,
+            'detail.LeakResponse': True,
+            'detail.Certificate': True,
+            'detail.Interfaces': True,
+            'detail.Vlans': True,
+            'detail.Collector': True,
+            'detail.SnmpAlias': True,
         }
 
         if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
@@ -242,7 +242,8 @@ class Zone:
 
         if temp.total == 0:
             if query_reference_ip:
-                result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated', 'true').run()
+                result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated',
+                                                                                            'true').run()
                 if result.total > 0 and result.result['referenceIp']:
                     return self.get_device_details_by_ip(result.result['referenceIp'])
             else:
@@ -250,4 +251,3 @@ class Zone:
                 return self.server.get('zonedata/devices', params=params)
         else:
             return temp
-
