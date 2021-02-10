@@ -1,5 +1,5 @@
-'''This module carries the code needed to deal with Spectre collectors
-'''
+"""This module carries the code needed to deal with Spectre collectors
+"""
 import calendar
 import ipaddress
 import json
@@ -12,9 +12,9 @@ IPNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
 
 
 class Collector:
-    '''This class encapsulates operations on Spectre collectors.
+    """This class encapsulates operations on Spectre collectors.
     a "Collector" is a set of scan configuration associated with a specific
-    Scout network interface.'''
+    Scout network interface."""
 
     def __init__(self, id_num, uuid, name, zone, server=None):
         self.id_num = id_num
@@ -60,6 +60,7 @@ class Collector:
             else:
                 clist.append('{"address":"%s"}' % str(cidr))
 
+        results = None
         for i in range(math.ceil(len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             params = {"append": str(append).lower()}
@@ -87,11 +88,11 @@ class Collector:
             else:
                 clist.append('{"address":"%s"}' % str(cidr))
 
+        results = None
         for i in range(math.ceil(len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             results = self.server.delete('zone/collector/%d/cidr/%s' %
                                          (self.id_num, cidr_type), data=data)
-            append = True  # after the first chunk, append regardless
 
             if not results.ok:
                 raise spectreapi.SpectreException(results.text)
@@ -108,7 +109,7 @@ class Collector:
         return self._delete_cidrs('stop', *cidrs, chunk_size=chunk_size)
 
     def set_target_cidrs(self, *cidrs, append=False, chunk_size=5000):
-        ''' Sets Targets for a given Collector.
+        """ Sets Targets for a given Collector.
         By default it will overwrite all targets for this collector, set append=True
         to add CIDRs to the target list.
 
@@ -122,22 +123,22 @@ class Collector:
         >>> collector.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
         >>>
-        '''
+        """
         return self._set_cidrs('target', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
-        '''Set "Avoid" CIDRs, Spectre shouldn't emit packets
+        """Set "Avoid" CIDRs, Spectre shouldn't emit packets
         at these addresses (though we could trace through them
-        via path as we're not targeting the hops themselves)'''
+        via path as we're not targeting the hops themselves)"""
         return self._set_cidrs('avoid', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_stop_cidrs(self, *cidrs, append=False, chunk_size=5000):
-        '''Set "Stop" CIDRs, if Spectre sees a hop in one of
-        these CIDRs it should stop tracing that path'''
+        """Set "Stop" CIDRs, if Spectre sees a hop in one of
+        these CIDRs it should stop tracing that path"""
         return self._set_cidrs('stop', *cidrs, append=append, chunk_size=chunk_size)
 
     def get_target_cidrs(self) -> List[IPNetwork]:
-        '''
+        """
         Gets the "Target" CIDRs for this collector
 
         >>> import spectreapi
@@ -148,15 +149,15 @@ class Collector:
         >>> c.get_target_cidrs() # doctest: +ELLIPSIS
         [IPv4Network(...
         >>>
-        '''
+        """
         return self._get_cidrs('target')
 
     def get_avoid_cidrs(self) -> List[IPNetwork]:
-        '''Return the list of "Avoid" CIDRs for this collector'''
+        """Return the list of "Avoid" CIDRs for this collector"""
         return self._get_cidrs('avoid')
 
     def get_stop_cidrs(self) -> List[IPNetwork]:
-        '''Return the list of "Stop" CIDRs for this collector'''
+        """Return the list of "Stop" CIDRs for this collector"""
         return self._get_cidrs('stop')
 
     def add_traces(self, traces, scanType='external', protocol='unspecified'):
