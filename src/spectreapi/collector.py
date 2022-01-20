@@ -189,4 +189,25 @@ class Collector:
 
         return
 
+    def get_property(self, prop):
+        if self.server is None:
+            raise spectreapi.NoServerException('Collector.get_property() needs a Collector with server')
+
+        results = self.server.get(f'zone/collector/{self.id_num}/property/get/{prop}')
+        return json.loads(results.results.text).get('result')
+
+    def set_property(self, prop, value):
+        if self.server is None:
+            raise spectreapi.NoServerException('Collector.set_property() needs a Collector with server')
+
+        results = self.server.get(f'zone/collector/{self.id_num}/property/set/{prop}', params={'value':value})
+        return json.loads(results.results.text).get('result')
+
+    def get_config(self):
+        if self.server is None:
+            raise spectreapi.NoServerException('Collector.get_property() needs a Collector with server')
+
+        results = self.server.get('/zone/collector',params={'detail.Config':True, 'detail.Interface':True, 'filter.collector.id':self.id_num})
+        return json.loads(results.results.text).get('results')[0]
+
 
