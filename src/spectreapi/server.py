@@ -3,10 +3,13 @@
 The spectre module is used to make access to Lumeta's Spectre API
 a little easier (Lumeta and Spectre are trademarks of the Lumeta Corporation).
 """
+import datetime
+import json
+
 import requests
 import urllib3
+
 import spectreapi
-import json
 from typing import Optional, List, Iterable
 
 
@@ -216,6 +219,43 @@ class Server:
                 server=self,
             ))
         return collectors
+
+    def initiate_collector_inhibits(self, func, *, debug=False):
+        ''' This method evaluates <func> for each collector.  If <func>
+        returns true we will set the collector's inhibited property.
+        That might look like:
+
+        def weekday_inhibit(t, collector):
+            if t.weekday() < 5 and collector.name == "Foo":
+                return True
+            else:
+                return False  
+
+        lumeta_server = spectreapi.UsernameServer('command_center','username','password')
+
+        lumeta_server.initiate_collector_inhibits(weekday_inhibit)   
+
+        That code will inhibit the collector named "Foo" when run on weekdays.
+        You would likely want to run this code in a cron job somewhere every so often
+        (every 10 minutes would allow you some decent granularity, you do want to run it 
+        often enough that you get the system into the right state even if it's been offline
+        for a bit).
+
+        This can take a little while to percolate through to all the systems involved so we are
+        really only initiating the changes.  They might take up to 10 minutes or so to take effect.
+        '''
+        t = datetime.datetime.now()
+        if debug:
+            print(t)
+        for collector in self.get_collectors():
+            if func(t, collector):
+                collector.set_property('inhibited','true')
+                if debug:
+                    print(f'Inhibiting collector {collector.name}')
+            else:
+                collector.set_property('inhibited','false')
+                if debug:
+                    print(f'Dis-Inhibiting collector {collector.name}')   
 
     def get_collector_by_name(self, name) -> Optional['spectreapi.Collector']:
         '''Returns the Collector configured on the server named <name> (if present)'''

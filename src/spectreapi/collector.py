@@ -4,9 +4,10 @@ import calendar
 import ipaddress
 import json
 import math
-import spectreapi
 import time
 from typing import List, Union
+
+import spectreapi
 
 IPNetwork = Union[ipaddress.IPv4Network,ipaddress.IPv6Network]
 
@@ -22,22 +23,20 @@ class Collector:
         self.server = server
 
     def __repr__(self):
-        return('Collector(%d, "%s", "%s", %s)' %
-               (self.id_num, self.uuid, self.name, self.zone.__repr__()))
+        return f'Collector({self.id_num}, "{self.uuid}", "{self.name}", {self.zone.__repr__()}'
 
     def __str__(self):
-        return('id=%d, uuid=%s, name=%s, zone=%s)' %
-               (self.id_num, self.uuid, self.name, self.zone.__str__()))
+        return f'id={self.id_num}, uuid={self.uuid}, name={self.name}, zone={self.zone.__str__()})'
 
     def _get_cidrs(self, cidr_type) -> List[IPNetwork]:
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs' % cidr_type)
+            raise spectreapi.InvalidArgument(f'{cidr_type} is not a valid type for _get_cidrs')
 
         if self.server is None:
             raise spectreapi.NoServerException('Collector.getCidrs() needs a Collector with server')
 
         cidrs = []
-        cidr_results = self.server.get('zone/collector/%d/cidr/%s' % (self.id_num, cidr_type))
+        cidr_results = self.server.get(f'zone/collector/{self.id_num}/cidr/{cidr_type}')
         for cidr in cidr_results:
             cidrs.append(ipaddress.ip_network(cidr))
 
@@ -45,54 +44,52 @@ class Collector:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.invalidargument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
 
         if self.server is None:
-            raise spectreapi.noserverexception('collector.setcidrs() needs a collector with server')
+            raise spectreapi.NoServerException('collector.setcidrs() needs a collector with server')
 
         clist = []
         for cidr in cidrs:
             if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
-                for c2 in cidr:
-                    clist.append('{"address":"%s"}' % str(c2))
+                for c in cidr:
+                    clist.append(f'{"address":"{c}"}')
             else:
-                 clist.append('{"address":"%s"}' % str(cidr))
+                clist.append(f'{"address":"{str(cidr)}"}')
 
         for i in range( math.ceil( len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
             params = {"append": str(append).lower()}
-            results = self.server.post('zone/collector/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data, params=params)
+            results = self.server.post('zone/collector/{self.id_num}/cidr/{cidr_type}',
+                                    data=data, params=params)
             append = True # after the first chunk, append regardless
 
             if not results.ok:
-                raise spectreapi.spectreexception(results.text)
+                raise spectreapi.SpectreException(results.text)
 
         return results
 
     def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
         if cidr_type not in ('target', 'avoid', 'stop'):
-            raise spectreapi.invalidargument('%s is not a valid type for _delete_cidrs')
+            raise spectreapi.InvalidArgument('%s is not a valid type for _delete_cidrs')
 
         if self.server is None:
-            raise spectreapi.noserverexception('collector._delete_cidrs() needs a collector with server')
+            raise spectreapi.NoServerException('collector._delete_cidrs() needs a server')
 
         clist = []
         for cidr in cidrs:
             if isinstance(cidr, list): # okay, we're a list of cidrs (hopefully)
-                for c2 in cidr:
-                    clist.append('{"address":"%s"}' % str(c2))
+                for c in cidr:
+                    clist.append(f'{"address":"{c}"}')
             else:
-                 clist.append('{"address":"%s"}' % str(cidr))
+                clist.append(f'{"address":"{str(cidr)}"}')
 
         for i in range( math.ceil( len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i*chunk_size:(i+1)*chunk_size]) + ']}'
-            results = self.server.delete('zone/collector/%d/cidr/%s' %
-                                    (self.id_num, cidr_type), data=data)
-            append = True # after the first chunk, append regardless
-
+            results = self.server.delete(f'zone/collector/{self.id_num}/cidr/{cidr_type}',
+                    data=data)
             if not results.ok:
-                raise spectreapi.spectreexception(results.text)
+                raise spectreapi.SpectreException(results.text)
 
         return results
 
@@ -161,55 +158,69 @@ class Collector:
         if "traces" not in traces:
             traces = { 'traces' : [ traces ] }
 
-        responses = {'collector': {'id': self.id_num, 'uuid': self.uuid},
-        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }
-       
+        responses = {'collector':
+            {'id': self.id_num, 'uuid': self.uuid},
+            'scanType': scanType,
+            'protocol': protocol,
+            'time': calendar.timegm(time.gmtime())*1000,
+            'NACK': False
+            }
+
         for trace in traces['traces']:
             trace['response'] = responses
 
-        result = self.server.put(('publish/path/%s' % self.uuid), data=json.dumps(traces))
+        result = self.server.put((f'publish/path/{self.uuid}'), data=json.dumps(traces))
         if not result.ok:
-            raise APIException(result)
-
-        return    
+            raise spectreapi.APIException(result)
 
     def add_devices(self, devices, scanType='external', protocol='unspecified'):
         if "devices" not in devices:
             devices = { 'devices' : [ devices ] }
 
         responses = [{'collector': {'id': self.id_num, 'uuid': self.uuid},
-        'scanType': scanType, 'protocol': protocol, 'time': calendar.timegm(time.gmtime())*1000, 'NACK': False }]
-       
+            'scanType': scanType,
+            'protocol': protocol,
+            'time': calendar.timegm(time.gmtime())*1000,
+            'NACK': False }]
+
         for device in devices['devices']:
             device['responses'] = responses
 
-        result = self.server.put(('publish/device/%s' % self.uuid) , data=json.dumps(devices))
+        result = self.server.put((f'publish/device/{self.uuid}') , data=json.dumps(devices))
         if not result.ok:
-            raise APIException(result)
+            raise spectreapi.APIException(result)
 
         return
 
     def get_property(self, prop):
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.get_property() needs a Collector with server')
+            raise spectreapi.NoServerException('Collector.get_property() needs a server')
 
         results = self.server.get(f'zone/collector/{self.id_num}/property/get/{prop}')
+        if not results.ok:
+            raise spectreapi.APIException(results)
+
         return json.loads(results.results.text).get('result')
 
     def set_property(self, prop, value, *, query_first = True):
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.set_property() needs a Collector with server')
+            raise spectreapi.NoServerException('Collector.set_property() needs a server')
 
         if (query_first and self.get_property(prop) == value):
-                return
+            return
 
-        results = self.server.get(f'zone/collector/{self.id_num}/property/set/{prop}', params={'value':value})
+        results = self.server.get(f'zone/collector/{self.id_num}/property/set/{prop}',
+                params={'value':value})
+        if not results.ok:
+            raise spectreapi.APIException(results)
 
     def get_config(self):
         if self.server is None:
-            raise spectreapi.NoServerException('Collector.get_property() needs a Collector with server')
+            raise spectreapi.NoServerException(
+                    'Collector.get_property() needs a server')
 
-        results = self.server.get('/zone/collector',params={'detail.Config':True, 'detail.Interface':True, 'filter.collector.id':self.id_num})
+        results = self.server.get('/zone/collector',
+                params={'detail.Config':True,
+                    'detail.Interface':True,
+                    'filter.collector.id':self.id_num})
         return json.loads(results.results.text).get('results')[0]
-
-
