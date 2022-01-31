@@ -2,9 +2,9 @@
 
 ## General
 This module is intended to make it a bit easier to work with
-The Lumeta Corporation's Spectre API.
+The Firemon Corporation's Lumeta (was named "Spectre" API.
 
-Lumeta and Spectre are both registered trademarks of the Lumeta Corporation
+Lumeta and Spectre are both registered trademarks of Firemon 
 
 Install this module by running `pip3 install spectre-api`
 

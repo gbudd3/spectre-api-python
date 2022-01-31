@@ -29,7 +29,7 @@ class Response:
             self.total = 1
 
     def rewind(self):
-        '''Used to reset state after iterating over results'''
+        """Used to reset state after iterating over results"""
         self.page = 0
         self.page_line = 0
         self.results = self.server.getpage(
@@ -39,7 +39,7 @@ class Response:
         return self
 
     def __next__(self):
-        '''This facilitates being able to iterate over the results of a GET'''
+        """This facilitates being able to iterate over the results of a GET"""
         if self.page * self.server.page_size + self.page_line == self.total:
             self.rewind()
             raise StopIteration
@@ -71,5 +71,3 @@ class Response:
     def values(self):
         """Return the values from the API call"""
         return self.results.json()['results']
-
-
