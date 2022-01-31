@@ -193,8 +193,6 @@ class Collector:
         if not result.ok:
             raise spectreapi.APIException(result)
 
-        return
-
     def get_property(self, prop):
         if self.server is None:
             raise spectreapi.NoServerException('Collector.get_property() needs a server')
