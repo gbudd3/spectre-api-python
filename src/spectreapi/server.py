@@ -28,6 +28,7 @@ class Server:
         self.url = "https://" + server + "/api/rest/"
         self._host = server
         self._version = None
+        self._name = None
         self.session.timeout = 1
         if verify_cert is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -41,7 +42,6 @@ class Server:
     def name(self) -> str:
         '''Returns the server name '''
         return self._name
-
 
     @property
     def version(self) -> str:
@@ -152,8 +152,6 @@ class Server:
         an iterable response
         >>> import spectreapi
         >>> s=spectreapi.UsernameServer('server','username','password')
-        >>> s.get('zone').results.json()
-        {'@class': 'apiresponse', 'status': 'SUCCESS', 'method': 'ZoneManagement.getZones', 'total': 2, 'results': [{'@class': 'zone', 'id': 2, 'name': 'Twilight', 'description': 'Zone to Test Scanning'}, {'@class': 'zone', 'id': 1, 'name': 'Zone1', 'description': 'Default Zone'}]}
         >>> r = s.get('zone')
         >>> for z in r:
         ...     print(z)
@@ -391,7 +389,7 @@ class Query:
     >>> for d in q.run():
     ...     print(d)
     """
-    def __init__(self, server, api) -> 'spectreapi.Query':
+    def __init__(self, server, api):
         """
         Setup a query for a server with api call <api>
         """
