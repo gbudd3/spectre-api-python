@@ -384,13 +384,13 @@ class UsernameServer(Server):
 
 class Query:
     """
-    Class to store the state around a GET request from a server
-    >>> import spectreapi
-    >>> s=spectreapi.UsernameServer('server','username','password')
-    >>> q=s.query().filter('zone.id',2).detail('Attributes')
-    >>> for d in q.run():
-    ...     print(d)
-    """
+        Class to store the state around a GET request from a server
+        >>> import spectreapi
+        >>> s=spectreapi.UsernameServer('server','username','password')
+        >>> q=s.query().filter('zone.id',2).detail('Attributes')
+        >>> for d in q.run():
+        ...     print(d)
+        """
 
     def __init__(self, server, api):
         """
@@ -409,6 +409,7 @@ class Query:
     def filter(self, name, value=True) -> 'spectreapi.Query':
         """
         Add a filter to the query
+        :type value: object
         """
         self.params['filter.' + name] = value
         return self
