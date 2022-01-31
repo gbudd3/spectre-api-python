@@ -35,25 +35,25 @@ class Server:
 
     @property
     def host(self) -> str:
-        '''Returns the server name (or IP) specified in the constructor'''
+        """Returns the server name (or IP) specified in the constructor"""
         return self._host
 
     @property
     def name(self) -> str:
-        '''Returns the server name '''
+        """Returns the server name """
         return self._name
 
     @property
     def version(self) -> str:
-        '''Returns the version of the Spectre server we're talking with (as reported by that server)'''
+        """Returns the version of the Spectre server we're talking with (as reported by that server)"""
         return self._version
 
     def close(self):
-        '''
+        """
         It's not _required_ to close a Server, but if you don't, you might
         hold tcp sockets open (the underlying requests and urllib3 modules
         hold them for keepalive purposes)
-        '''
+        """
         self.session.close()
 
     def post(self, api, **kargs) -> requests.Response:
@@ -104,7 +104,7 @@ class Server:
         return result
 
     def put(self, api, **kargs):
-        '''Method PUTs through to the server'''
+        """Method PUTs through to the server"""
 
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
@@ -114,9 +114,8 @@ class Server:
             raise APIException(result)
         return result
 
-
     def delete(self, api, **kargs) -> requests.Response:
-        '''Method sends DELETEs through to server'''
+        """Method sends DELETEs through to server"""
 
         if 'headers' not in kargs:
             kargs['headers'] = {'Accept': 'json:pretty', 'Content-Type': 'application/json'}
@@ -125,7 +124,6 @@ class Server:
         if not result.ok:
             raise APIException(result)
         return result
-
 
     def getpage(self, api, params=None, page=0, headers=None) -> requests.Response:
         """
@@ -140,7 +138,7 @@ class Server:
 
         params["query.pagesize"] = self.page_size
         params["query.page"] = page
-        results = self.session.get(self.url+api, params=params, timeout=120, headers=headers)
+        results = self.session.get(self.url + api, params=params, timeout=120, headers=headers)
         if not results.ok:
             print(results.text)
             raise APIException(results)
@@ -173,7 +171,7 @@ class Server:
         return Query(self, api)
 
     def get_zones(self) -> List['spectreapi.Zone']:
-        '''Returns all the Zones configured on the server'''
+        """Returns all the Zones configured on the server"""
         zones = []
         result = self.get('zone')
         for zone in result:
@@ -182,7 +180,7 @@ class Server:
         return zones
 
     def get_zone_by_name(self, name) -> Optional['spectreapi.Zone']:
-        '''Returns the Zone configured on the server named <name> (if present)'''
+        """Returns the Zone configured on the server named <name> (if present)"""
         results = self.get('zone')
         for zone in results:
             if zone['name'] == name:
@@ -194,18 +192,17 @@ class Server:
         zone = self.get_zone_by_name(name)
         if zone:
             return zone
-        data = [{ "@class" : "zone",
-            "name" : name,
-            "description" : description,
-            "organization": organization
-            }]
-        r = self.post("zone", data=json.dumps(data))
+        data = [{"@class": "zone",
+                 "name": name,
+                 "description": description,
+                 "organization": organization
+                 }]
+        self.post("zone", data=json.dumps(data))
         zone = self.get_zone_by_name(name)
         return zone
 
-
     def get_collectors(self) -> List['spectreapi.Collector']:
-        '''Returns the Collectors configured on the server'''
+        """Returns the Collectors configured on the server"""
         collectors = []
         results = self.get('zone/collector')
         for collector in results:
@@ -219,7 +216,7 @@ class Server:
         return collectors
 
     def initiate_collector_inhibits(self, func, *, debug=False):
-        ''' This method evaluates <func> for each collector.  If <func>
+        """ This method evaluates <func> for each collector.  If <func>
         returns true we will set the collector's inhibited property.
         That might look like:
 
@@ -227,36 +224,36 @@ class Server:
             if t.weekday() < 5 and collector.name == "Foo":
                 return True
             else:
-                return False  
+                return False
 
         lumeta_server = spectreapi.UsernameServer('command_center','username','password')
 
-        lumeta_server.initiate_collector_inhibits(weekday_inhibit)   
+        lumeta_server.initiate_collector_inhibits(weekday_inhibit)
 
         That code will inhibit the collector named "Foo" when run on weekdays.
         You would likely want to run this code in a cron job somewhere every so often
-        (every 10 minutes would allow you some decent granularity, you do want to run it 
+        (every 10 minutes would allow you some decent granularity, you do want to run it
         often enough that you get the system into the right state even if it's been offline
         for a bit).
 
         This can take a little while to percolate through to all the systems involved so we are
         really only initiating the changes.  They might take up to 10 minutes or so to take effect.
-        '''
+        """
         t = datetime.datetime.now()
         if debug:
             print(t)
         for collector in self.get_collectors():
             if func(t, collector):
-                collector.set_property('inhibited','true')
+                collector.set_property('inhibited', 'true')
                 if debug:
                     print(f'Inhibiting collector {collector.name}')
             else:
-                collector.set_property('inhibited','false')
+                collector.set_property('inhibited', 'false')
                 if debug:
-                    print(f'Dis-Inhibiting collector {collector.name}')   
+                    print(f'Dis-Inhibiting collector {collector.name}')
 
     def get_collector_by_name(self, name) -> Optional['spectreapi.Collector']:
-        '''Returns the Collector configured on the server named <name> (if present)'''
+        """Returns the Collector configured on the server named <name> (if present)"""
         results = self.get('zone/collector')
         for collector in results:
             if collector['name'] == name:
@@ -270,7 +267,8 @@ class Server:
 
         return None
 
-class Response():
+
+class Response:
     """
     This class is used to present the results of a "GET" API call
     It handles iterating through the results and fetching pages as
@@ -291,7 +289,7 @@ class Response():
             self.total = 1
 
     def rewind(self):
-        '''Used to reset state after iterating over results'''
+        """Used to reset state after iterating over results"""
         self.page = 0
         self.page_line = 0
         self.results = self.server.getpage(
@@ -301,7 +299,7 @@ class Response():
         return self
 
     def __next__(self):
-        '''This facilitates being able to iterate over the results of a GET'''
+        """This facilitates being able to iterate over the results of a GET"""
         if self.page * self.server.page_size + self.page_line == self.total:
             self.rewind()
             raise StopIteration
@@ -338,6 +336,7 @@ class Response():
         """Return the values from the API call"""
         return self.results.json()['results']
 
+
 class APIKeyServer(Server):
     """
     An APIKeyServer is a Server that uses authentication via API key.
@@ -366,11 +365,13 @@ class APIKeyServer(Server):
         self._version = results.result['version']
         self._name = results.result['name']
 
+
 class UsernameServer(Server):
     """
     This Server uses username and password authentication for the initial
     request, and then uses a session cookie from there out
     """
+
     def __init__(self, server, username, password, page_size=500, verify_cert=False):
         super().__init__(server, page_size=page_size, verify_cert=verify_cert)
         auth = requests.auth.HTTPBasicAuth(username, password)
@@ -379,6 +380,7 @@ class UsernameServer(Server):
         self._version = results.json()['results'][0]['version']
         self._name = results.json()['results'][0]['name']
         self.session.cookies = results.cookies
+
 
 class Query:
     """
@@ -389,6 +391,7 @@ class Query:
     >>> for d in q.run():
     ...     print(d)
     """
+
     def __init__(self, server, api):
         """
         Setup a query for a server with api call <api>
@@ -419,20 +422,24 @@ class Query:
 
 
 class SpectreException(Exception):
-    '''General Base Spectre exception'''
+    """General Base Spectre exception"""
     pass
+
 
 class NoServerException(SpectreException):
-    '''Specter exception for when we call a
-    method that needs a server but we don't have one'''
+    """Specter exception for when we call a
+    method that needs a server but we don't have one"""
     pass
+
 
 class InvalidArgument(SpectreException):
-    '''Invalid argument'''
+    """Invalid argument"""
     pass
 
+
 class APIException(SpectreException):
-    '''We got an exception back from the Spectre API call'''
+    """We got an exception back from the Spectre API call"""
+
     def __init__(self, request):
         super().__init__()
         self.request = request
