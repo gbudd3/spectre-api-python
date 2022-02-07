@@ -1,9 +1,9 @@
 """Module to handle Spectre Zones"""
-import ipaddress
 from distutils.version import LooseVersion
+import ipaddress
 import math
+
 import spectreapi
-import json
 
 
 class Zone:
@@ -18,21 +18,21 @@ class Zone:
         self.server = server
 
     def __repr__(self):
-        return 'Zone(%d, "%s", "%s")' % (self.id_num, self.name, self.description)
+        return f'Zone({self.id_num}, "{self.name}", "{self.description}")'
 
     def __str__(self):
-        return 'id=%d, name=%s, description=%s)' % (self.id_num, self.name, self.description)
+        return f'id={self.id_num}, name={self.name}, description={self.description})'
 
     def _get_cidrs(self, cidr_type):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _get_cidrs')
+            raise spectreapi.InvalidArgument(f'{cidr_type} is not a valid type for _get_cidrs')
 
         if self.server is None:
             raise spectreapi.NoServerException(
                 'Collector.getCidrs() requires a Collector with a server')
 
         cidrs = []
-        results = self.server.get('zone/%d/cidr/%s' % (self.id_num, cidr_type))
+        results = self.server.get(f'zone/{self.id_num}/cidr/{cidr_type}')
         for cidr in results:
             cidrs.append(ipaddress.ip_network(cidr))
 
@@ -70,7 +70,7 @@ class Zone:
 
     def _set_cidrs(self, cidr_type, *cidrs, append=False, chunk_size=5000):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument(f'{cidr_type} is not a valid type for _set_cidrs')
 
         if self.server is None:
             raise spectreapi.NoServerException(
@@ -81,18 +81,18 @@ class Zone:
         print(cidrs)
         for cidr in cidrs:
             if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
-                for c2 in cidr:
-                    clist.append('{"address":"%s"}' % str(c2))
+                for list_entry in cidr:
+                    clist.append(f'{"address":"{str(list_entry)}"}')
             else:
-                clist.append('{"address":"%s"}' % str(cidr))
+                clist.append(f'{"address":"{str(cidr)}"}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
 
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             params = {"append": str(append).lower()}
 
-            results = self.server.post('zone/%d/cidr/%s' %
-                                       (self.id_num, cidr_type), data=data, params=params)
+            results = self.server.post(f'zone/{self.id_num}/cidr/{cidr_type}',
+                data=data, params=params)
             append = True  # after the first chunk, append regardless
 
             if not results.ok:
@@ -102,7 +102,7 @@ class Zone:
 
     def _delete_cidrs(self, cidr_type, *cidrs, chunk_size=5000):
         if cidr_type not in ('known', 'trusted', 'internal', 'avoid'):
-            raise spectreapi.InvalidArgument('%s is not a valid type for _set_cidrs')
+            raise spectreapi.InvalidArgument(f'{cidr_type} is not a valid type for _set_cidrs')
 
         if self.server is None:
             raise spectreapi.NoServerException(
@@ -113,17 +113,16 @@ class Zone:
         print(cidrs)
         for cidr in cidrs:
             if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
-                for c2 in cidr:
-                    clist.append('{"address":"%s"}' % str(c2))
+                for list_entry in cidr:
+                    clist.append(f'{"address":"{str(list_entry)}"}')
             else:
-                clist.append('{"address":"%s"}' % str(cidr))
+                clist.append(f'{"address":"{str(cidr)}"}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
 
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
 
-            results = self.server.delete('zone/%d/cidr/%s' %
-                                         (self.id_num, cidr_type), data=data)
+            results = self.server.delete(f'zone/{self.id_num}/cidr/{cidr_type}', data=data)
 
             if not results.ok:
                 raise spectreapi.SpectreException(results.text)
@@ -139,25 +138,28 @@ class Zone:
 
     def set_eligible_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "eligible" CIDRs for this zone.
-        These are the CIDRs we're allowed to scan if we learn about them Set append to True if you want to add these CIDRs
+        These are the CIDRs we're allowed to scan if we learn about them.
+        Set append to True if you want to add these CIDRs
         to the existing CIDRs"""
         return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_trusted_cidrs(self, *cidrs, append=False, chunk_size=5000):
-        """Set "trusted" (AKA "eligible") CIDRs for this zone. Set append to True if you want to add these CIDRs
+        """Set "trusted" (AKA "eligible") CIDRs for this zone.
+        Set append to True if you want to add these CIDRs
         to the existing CIDRs"""
         return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_internal_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "internal" CIDRs for this zone.
-        "internal" CIDRs are the ones you own or control that are a part of your network Set append to True if you want to add these CIDRs
+        "internal" CIDRs are the ones you own or control that are a part of
+        your network Set append to True if you want to add these CIDRs
         to the existing CIDRs"""
         return self._set_cidrs('internal', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "avoid" CIDRs for this zone.
-        "avoid" CIDRs are the ones we won't actively scan Set append to True if you want to add these CIDRs
-        to the existing CIDRs"""
+        "avoid" CIDRs are the ones we won't actively scan Set append to True
+        if you want to add these CIDRs to the existing CIDRs"""
         return self._set_cidrs('avoid', *cidrs, append=append, chunk_size=chunk_size)
 
     def delete_eligible_cidrs(self, *cidrs, chunk_size=5000):
@@ -222,15 +224,15 @@ class Zone:
         collector = self.server.get_collector_by_name(name)
         return collector
 
-    def get_device_details_by_ip(self, ip, query_reference_ip=True):
+    def get_device_details_by_ip(self, ip_address, query_reference_ip=True):
         """Return the details for one device for a zone with an address of <ip>
         This method returns all available details (minus the profile data prior to Spectre 3.3.1)
-        If query_reference_ip is True (the default) we'll query for the reference IP associated with <ip> and
-        return the details for that.  If query_reference_ip is False, we won't chase the reference IP but will
-        return details for the child (if any)"""
+        If query_reference_ip is True (the default) we'll query for the reference IP associated
+        with <ip> and return the details for that.  If query_reference_ip is False, we won't chase
+        the reference IP but will return details for the child (if any)"""
         params = {
             'filter.zone.id': self.id_num,
-            'filter.address.ip': ip,
+            'filter.address.ip': ip_address,
             'detail.ScanType': True,
             'detail.Attributes': True,
             'detail.Protocol': True,
@@ -255,13 +257,16 @@ class Zone:
         temp = self.server.get('zonedata/devices', params=params)
 
         # If we look for an ip that isn't the reference IP we won't get a device
-        # The following lines look for the reference IP associated with <ip> and 
+        # The following lines look for the reference IP associated with <ip> and
         # try querying for that instead
 
         if temp.total == 0:
             if query_reference_ip:
-                result = self.query().detail('ReferenceIp').filter('address.ip', ip).filter('device.associated',
-                                                                                            'true').run()
+                result = self.query()\
+                    .detail('ReferenceIp')\
+                    .filter('address.ip', ip_address)\
+                    .filter('device.associated', 'true')\
+                    .run()
                 if result.total > 0 and result.result['referenceIp']:
                     return self.get_device_details_by_ip(result.result['referenceIp'])
             else:
