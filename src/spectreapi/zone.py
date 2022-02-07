@@ -133,41 +133,56 @@ class Zone:
     def set_known_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "known" CIDRs for this zone.
         "known" CIDRs are meant to be CIDRs that you know about but that you
-        don't own or control."""
+        don't own or control. Set append to True if you want to add these CIDRs
+        to the existing CIDRs"""
         return self._set_cidrs('known', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_eligible_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "eligible" CIDRs for this zone.
-        These are the CIDRs we're allowed to scan if we learn about them"""
+        These are the CIDRs we're allowed to scan if we learn about them Set append to True if you want to add these CIDRs
+        to the existing CIDRs"""
         return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_trusted_cidrs(self, *cidrs, append=False, chunk_size=5000):
-        """Set "trusted" (AKA "eligible") CIDRs for this zone."""
+        """Set "trusted" (AKA "eligible") CIDRs for this zone. Set append to True if you want to add these CIDRs
+        to the existing CIDRs"""
         return self._set_cidrs('trusted', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_internal_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "internal" CIDRs for this zone.
-        "internal" CIDRs are the ones you own or control that are a part of your network"""
+        "internal" CIDRs are the ones you own or control that are a part of your network Set append to True if you want to add these CIDRs
+        to the existing CIDRs"""
         return self._set_cidrs('internal', *cidrs, append=append, chunk_size=chunk_size)
 
     def set_avoid_cidrs(self, *cidrs, append=False, chunk_size=5000):
         """Set "avoid" CIDRs for this zone.
-        "avoid" CIDRs are the ones we won't actively scan"""
+        "avoid" CIDRs are the ones we won't actively scan Set append to True if you want to add these CIDRs
+        to the existing CIDRs"""
         return self._set_cidrs('avoid', *cidrs, append=append, chunk_size=chunk_size)
 
     def delete_eligible_cidrs(self, *cidrs, chunk_size=5000):
+        """Delete "eligible" CIDRs for this zone.
+        These are the CIDRs we're allowed to scan if we learn about them"""
         return self._delete_cidrs('trusted', *cidrs, chunk_size=chunk_size)
 
     def delete_trusted_cidrs(self, *cidrs, chunk_size=5000):
+        """Delete "trusted" (AKA "eligible") CIDRs for this zone."""
         return self._delete_cidrs('trusted', *cidrs, chunk_size=chunk_size)
 
     def delete_internal_cidrs(self, *cidrs, chunk_size=5000):
+        """Delete "internal" CIDRs for this zone.
+        "internal" CIDRs are the ones you own or control that are a part of your network"""
         return self._delete_cidrs('internal', *cidrs, chunk_size=chunk_size)
 
     def delete_avoid_cidrs(self, *cidrs, chunk_size=5000):
+        """Delete "avoid" CIDRs for this zone.
+        "avoid" CIDRs are the ones we won't actively scan"""
         return self._delete_cidrs('avoid', *cidrs, chunk_size=chunk_size)
 
     def delete_known_cidrs(self, *cidrs, chunk_size=5000):
+        """Delete "known" CIDRs for this zone.
+             "known" CIDRs are meant to be CIDRs that you know about but that you
+             don't own or control."""
         return self._delete_cidrs('known', *cidrs, chunk_size=chunk_size)
 
     def query(self, api='zonedata/devices'):
