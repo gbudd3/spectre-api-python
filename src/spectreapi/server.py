@@ -328,6 +328,11 @@ class Response:
         """Return result 0 (the only result for singletons"""
         return self.values()[0]
 
+    @property
+    def ok(self):
+        """Return result 0 (the only result for singletons"""
+        return self.results.ok
+
     def value(self):
         """Return value 0 (the only value for singletons (replaces result())"""
         return self.results.json()['results'][0]

@@ -64,6 +64,10 @@ class Response:
                 raise StopIteration  # This could happen if the underlying query shrinks under us
 
     @property
+    def ok(self):
+        return self.results.ok
+
+    @property
     def result(self):
         """Return result 0 (the only result for singletons"""
         return self.values()[0]

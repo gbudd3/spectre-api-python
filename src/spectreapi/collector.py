@@ -58,12 +58,12 @@ class Collector:
                 for c in cidr:
                     clist.append(f'{"address":"{c}"}')
             else:
-                clist.append(f'{"address":"{str(cidr)}"}')
+                clist.append(f'{{"address":"{str(cidr)}"}}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
             params = {"append": str(append).lower()}
-            results = self.server.post('zone/collector/{self.id_num}/cidr/{cidr_type}',
+            results = self.server.post(f'zone/collector/{self.id_num}/cidr/{cidr_type}',
                                        data=data, params=params)
             append = True  # after the first chunk, append regardless
 
@@ -176,7 +176,7 @@ class Collector:
         if not result.ok:
             raise spectreapi.APIException(result)
 
-    def add_devices(self, devices, scanType='external', protocol='unspecified'):
+    def add_devices(self, devices, scanType='external', protocol='unspecified', nack=False):
         if "devices" not in devices:
             devices = {'devices': [devices]}
 
@@ -184,7 +184,7 @@ class Collector:
                       'scanType': scanType,
                       'protocol': protocol,
                       'time': calendar.timegm(time.gmtime()) * 1000,
-                      'NACK': False}]
+                      'NACK': nack}]
 
         for device in devices['devices']:
             device['responses'] = responses
