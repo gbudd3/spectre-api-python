@@ -82,9 +82,9 @@ class Zone:
         for cidr in cidrs:
             if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
                 for list_entry in cidr:
-                    clist.append(f'{"address":"{str(list_entry)}"}')
+                    clist.append(f'{{"address":"{str(list_entry)}"}}')
             else:
-                clist.append(f'{"address":"{str(cidr)}"}')
+                clist.append(f'{{"address":"{str(cidr)}"}}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
 
@@ -114,9 +114,9 @@ class Zone:
         for cidr in cidrs:
             if isinstance(cidr, list):  # Okay, we're a list of CIDRs (hopefully)
                 for list_entry in cidr:
-                    clist.append(f'{"address":"{str(list_entry)}"}')
+                    clist.append(f'{{"address":"{str(list_entry)}"}}')
             else:
-                clist.append(f'{"address":"{str(cidr)}"}')
+                clist.append(f'{{"address":"{str(cidr)}"}}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
 

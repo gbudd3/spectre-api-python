@@ -56,7 +56,7 @@ class Collector:
         for cidr in cidrs:
             if isinstance(cidr, list):  # okay, we're a list of cidrs (hopefully)
                 for c in cidr:
-                    clist.append(f'{"address":"{c}"}')
+                    clist.append(f'{{"address":"{c}"}}')
             else:
                 clist.append(f'{{"address":"{str(cidr)}"}}')
 
@@ -84,9 +84,9 @@ class Collector:
         for cidr in cidrs:
             if isinstance(cidr, list):  # okay, we're a list of cidrs (hopefully)
                 for c in cidr:
-                    clist.append(f'{"address":"{c}"}')
+                    clist.append(f'{{"address":"{c}"}}')
             else:
-                clist.append(f'{"address":"{str(cidr)}"}')
+                clist.append(f'{{"address":"{str(cidr)}"}}')
 
         for i in range(math.ceil(len(clist) / chunk_size)):
             data = '{"addresses":[' + ','.join(clist[i * chunk_size:(i + 1) * chunk_size]) + ']}'
