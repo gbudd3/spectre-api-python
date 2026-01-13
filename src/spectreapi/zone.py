@@ -1,5 +1,4 @@
 """Module to handle Spectre Zones"""
-from distutils.version import LooseVersion
 import ipaddress
 import math
 
@@ -238,8 +237,8 @@ class Zone:
             'detail.Protocol': True,
             'detail.Port': True,
             'detail.AlternateAddress': True,
-            # 'detail.Profile' : True,
-            # 'detail.ProfileDetails' : True,
+            'detail.Profile' : True,
+            'detail.ProfileDetails' : True,
             'detail.ReferenceIp': True,
             'detail.Details': True,
             'detail.LeakResponse': True,
@@ -249,10 +248,6 @@ class Zone:
             'detail.Collector': True,
             'detail.SnmpAlias': True,
         }
-
-        if LooseVersion(self.server.version) >= LooseVersion("3.3.1"):
-            params['detail.Profile'] = True
-            params['detail.ProfileDetails'] = True
 
         temp = self.server.get('zonedata/devices', params=params)
 

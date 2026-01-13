@@ -1,10 +1,10 @@
 
 test:
-	pip install .
+	python3 -m pip install .
 	pytest -v tests
 	
 doctest:
-	python3 -m doctest src/spectreapi/*.py
+	python33 -m doctest src/spectreapi/*.py
 
 lint:
 	pylint src/spectreapi/*.py

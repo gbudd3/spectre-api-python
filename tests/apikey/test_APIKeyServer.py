@@ -4,19 +4,19 @@ import spectreapi
 def test_createserver():
     '''Create server'''
     server = spectreapi.APIKeyServer(
-        "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
+        "6hour", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
     results = server.getpage("system/information")
     server_results = results.json()['results'][0]
 
     assert results.json()['status'] == 'SUCCESS'
-    assert server_results['name'] == 'i3'
+    assert server_results['name'] == '6hour'
 
 def test_pagesizes():
     '''Test server access with different page sizes'''
     server = spectreapi.APIKeyServer(
-        "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
+        "6hour", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
     results = server.getpage("zonedata/devices", params={"filter.zone.id": "4"})
@@ -25,7 +25,7 @@ def test_pagesizes():
 
     for size in (1, 2, 5, 7, 500):
         server = spectreapi.APIKeyServer(
-            "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
+            "6hour", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
             "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
             "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds", page_size=size)
 
@@ -40,7 +40,7 @@ def test_pagesizes():
 def test_rewind():
     '''Test the ability to rewind the results and re-iterate over them'''
     server = spectreapi.APIKeyServer(
-        "i3", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
+        "6hour", api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlI" +
         "joxNTI0NDI5ODU2NTA2LCJ1c2VyIjoiYWRtaW4ifQ.KEaRBjPVMn" +
         "sdPAG6l3oinHOjPFAfsfUkgOs0YKyhwds")
     results = server.get("zonedata/devices", params={"filter.zone.id": "4"})
